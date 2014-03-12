@@ -1,0 +1,4 @@
+.git
+database/sqlite_test
+inotify/inotify_test
+md5/md5_test

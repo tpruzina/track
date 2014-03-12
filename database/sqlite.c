@@ -51,9 +51,9 @@ int db_open(char *path)
 	return 0;
 }
 
-int track_file(char *file)
+int track_file(const char *file)
 {
-	 “INSERT INTO users VALUES(‘manish’,'manish’,1)”
+	return 0;
 }
 
 

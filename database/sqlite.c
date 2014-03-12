@@ -24,7 +24,7 @@ void db_close(void)
 	sqlite3_shutdown();
 }
 
-int db_open(char *path)
+int db_open(const char *path)
 {
 	int ret;
 

@@ -7,6 +7,7 @@
 int main(int argc, char **argv)
 {
 	inotify_initialize();
+	db_open("db.sql");
 	return 0;
 }
 

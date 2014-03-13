@@ -10,6 +10,7 @@
  ******************************************************************************/
 
 #include <stdio.h>
+#include <string.h>
 
 #include "md5.h"
 
@@ -25,14 +26,29 @@ int md5_calculate_hash(const char *filename, unsigned char hash[MD5_DIGEST_LENGT
 	if (!inFile)
         	return -1;
 
-	MD5_Init (&mdContext);
+	MD5_Init(&mdContext);
 	while ((bytes = fread (data, 1, 1024, inFile)) != 0)
-		MD5_Update (&mdContext, data, bytes);
-	MD5_Final (hash,&mdContext);
+		MD5_Update(&mdContext, data, bytes);
+	MD5_Final(hash,&mdContext);
 
-	for(i = 0; i < MD5_DIGEST_LENGTH; i++) printf("%02x", hash[i]);
-		printf (" %s\n", filename);
+#ifdef _DEBUG
+	for(i = 0; i < MD5_DIGEST_LENGTH; i++)
+		printf("%02x", hash[i]);
+	printf (" %s\n", filename);
+#endif
 	fclose (inFile);
+	return 0;
+}
+
+int md5_calculate_hash_from_string(const char *string, unsigned char hash[MD5_DIGEST_LENGTH])
+{
+	if(!string)
+		return -1;
+	MD5_CTX mdContext;
+
+	MD5_Init(&mdContext);
+	MD5_Update(&mdContext, string, strlen(string));
+	MD5_Final(hash, &mdContext);
 	return 0;
 }
 

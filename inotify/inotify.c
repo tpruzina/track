@@ -11,6 +11,7 @@
 
 #include <sys/inotify.h>
 #include <stdlib.h>
+#include <unistd.h>
 
 int inotify_fd = 0;
 

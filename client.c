@@ -4,6 +4,7 @@
 void init()
 {
 	DEBUG_PRINT("=====INIT====\n");
+
 	// prepare ~/.track directory if it doesnt exist already
 	char *home = getenv ("HOME");
 	if (home != NULL)
@@ -28,6 +29,7 @@ void init()
 	
 	if(db_open(db_path) != 0)
 		exit(EXIT_FAILURE);
+	
 	DEBUG_PRINT("\n");
 	return;
 }
@@ -35,6 +37,7 @@ void init()
 int parse_args(int argc, char **argv)
 {
 	DEBUG_PRINT("=====ARG PARSE====\n");
+
 	DEBUG_PRINT("\n");
 	return 0;
 }
@@ -45,6 +48,8 @@ int main(int argc, char **argv)
 	init();
 
 	track_file("client.c");
+
+	//local_copy("client.c","client.b");
 
 	//untrack_file("client.c");
 	//delete_file("client.c");

@@ -1,5 +1,6 @@
 #undef _TEST
 #include "common.h"
+#include "inotify/inotify.h"
 
 struct options
 {

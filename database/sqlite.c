@@ -48,7 +48,8 @@ int db_open(const char *path)
 		atexit(db_close);	// close database on exit
 
 	// create file table if it does not exist already
-	sqlite3_exec(pDB,"CREATE TABLE IF NOT EXISTS files (path TEXT PRIMARY KEY, mtime INTEGER)",0,0,0);
+	sqlite3_exec(pDB,"CREATE TABLE IF NOT EXISTS file (path TEXT PRIMARY KEY, hash TEXT)",0,0,0);
+	sqlite3_exec(pDB,"CREATE TABLE IF NOT EXISTS file_version (hash TEXT PRIMARY KEY, mtime INTEGER,md5 TEXT)",0,0,0);
 
 	return 0;
 }
@@ -76,13 +77,32 @@ int track_file(const char *file)
 		exit(-1);
 		//handle error
 	}
-	
+		
 	// check wheather file isn't tracked already
+	if(0)
+	{
+
+	}
+	else // file isn't tracked yet - track it!
+	{
+		// FILE: <PK file_path> <hash>
+		// FILE_VERSION: <PK hash> <backup_path> <mtime> <md5>
+
+		const char *file_path = file;
+		unsigned char md5[MD5_DIGEST_LENGTH];
+
+		// modification time is already present in (struct stat) st
+
+		// calculate md5
+		md5_calculate_hash(file, md5);
 	
-	// calculate md5
-	
-	// add into database
-	
+		// backup file
+		
+		// add into database
+		
+		
+	}
+
 	return 0;
 }
 

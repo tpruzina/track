@@ -15,3 +15,29 @@
 char hash[MD5_DIGEST_LENGTH];
 char data_path[1024];
 char db_path[1024];
+
+// random string generator
+
+char *generate_random_string(size_t length)
+{
+	int urandom_fd = open("/dev/urandom", O_RDONLY);
+	
+	char *result = malloc(length+1);
+	if(!result)
+		exit(EXIT_FAILURE);
+
+	if(read(urandom_fd, result, length) != length)
+		exit(EXIT_FAILURE);
+	
+	// TODO test correctness of approach bellow (off by one)
+	// convert random bytes into alfa format (a-z,A-Z) (usable by filesystems)
+	for(unsigned int i=0; i < length; i++)
+		result[i] = ((unsigned char) result[i] % 57) + 'A';
+	
+	// zero terminate string
+	result[length] = '\0';
+
+	close(urandom_fd);
+
+	return result;
+}

@@ -1,8 +1,8 @@
 LDFLAGS=-lssl -lcrypto -lsqlite3
-CFLAGS=-O2 -g -D_DEBUG
+CFLAGS=-O2 -g -D_DEBUG -std=gnu99
 
-CLIENT_SOURCES=common.c client.c database/sqlite.c md5/md5.c
-DAEMON_SOURCES=common.c daemon.c database/sqlite.c md5/md5.c inotify/inotify.c
+CLIENT_SOURCES=common.c client.c database/sqlite.c md5/md5.c file/file.c
+DAEMON_SOURCES=common.c daemon.c database/sqlite.c md5/md5.c inotify/inotify.c file/file.c
 
 all: client daemon
 

@@ -24,34 +24,14 @@
  * SOFTWARE.
  ******************************************************************************/
 
-#ifndef __COMMON_H__
-#define __COMMON_H__
+#ifndef __FILE_H__
+#define __FILE_H__
 
-#include <sys/stat.h>
-#include <sys/types.h>
-#include <errno.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <unistd.h>
-#include <fcntl.h>
+#include "../common.h"
 
-#include "md5/md5.h"
-#include "database/sqlite.h"
+int local_copy(const char *src, const char *dest);
 
-extern char hash[MD5_DIGEST_LENGTH];
-extern char data_path[1024];
-extern char db_path[1024];
-
-#ifdef _DEBUG
-#define DEBUG_PRINT(...) do{ fprintf( stderr, __VA_ARGS__ ); } while( 0 )
-#else
-#define DEBUG_PRINT(...) do{ } while ( 0 )
-#endif
-
-
-char *generate_random_string(size_t length);
-
-#endif /* __COMMON_H__ */
+#endif /* __FILE_H__ */
 
 
 

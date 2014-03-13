@@ -3,6 +3,8 @@
 
 #include <sqlite3.h>
 
+#include "../common.h"
+
 int db_open(const char *path);
 
 int track_file(const char *file);

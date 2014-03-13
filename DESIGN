@@ -13,3 +13,10 @@ FILE_VERSION
 
 When the file is removed, <md5> string equals zero (this allows for creation
 of snapshots)
+
+
+Files
+
+default path for backups is ~/.track
+sql database is stored in ~/.track/db.sql
+files are stared in ~/.track/hash/md5

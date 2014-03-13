@@ -87,30 +87,40 @@ int track_file(const char *file_path)
 	{
 		// FILE: <PK file_path> <hash>
 		// FILE_VERSION: <PK hash> <mtime> <md5>
-
+		
+		
+		// 1. calculate hashes and prepare filesystem paths
 		unsigned char md5[MD5_DIGEST_LENGTH];
-		unsigned char filename_hash[MD5_DIGEST_LENGTH];
-		
-		// modification time is already present in (struct stat) st
-
-		// calculate md5 of file itself
-		md5_calculate_hash(file_path, md5);
-	
-		// calculate md5 of filename itself - yeah, its confusing
-		md5_calculate_hash_from_string(file_path, filename_hash);
-
-		// backup file
+		unsigned char hash[MD5_DIGEST_LENGTH];
 		char backup_path[1024] = {0};
+		char dir_path[1024] = {0};
+		
+		md5_calculate_hash(file_path, md5);
 		char *sanitized_file_hash = md5_sanitized_hash(md5);
-		snprintf(backup_path, sizeof(backup_path), "%s/%s",data_path,sanitized_file_hash);
-		DEBUG_PRINT("FILE BACKUP PATH=%s",backup_path);
+		
+		md5_calculate_hash_from_string(file_path, hash);
+		char *sanitized_hash = md5_sanitized_hash(hash);
+		
+		snprintf(dir_path, sizeof(dir_path), "%s/%s", data_path, sanitized_hash);
+		snprintf(backup_path, sizeof(backup_path), "%s/%s/%s",data_path,sanitized_hash,sanitized_file_hash);
+		
+		// 2. create directory named "hash of filepath"
+		if(mkdir(dir_path, 0777) != 0)
+		{
+			perror(NULL);
+			exit(EXIT_FAILURE);
+		}
+		
+		// 3. copy file into "hash of filepath"/"md5 of file";
 		local_copy(file_path,backup_path);
-		free(sanitized_file_hash);
 		
-		// add into database
+		// 4. add into database
 		
-	}
 
+		//cleanup
+		free(sanitized_file_hash);
+		free(sanitized_hash);
+	}
 	return 0;
 }
 

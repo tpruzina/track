@@ -74,7 +74,7 @@ int track_file(const char *file_path)
 	struct stat st;
 	if(stat(file_path, &st) == -1)
 	{
-		exit(-1);
+		exit(EXIT_FAILURE);
 		//handle error
 	}
 		
@@ -87,7 +87,6 @@ int track_file(const char *file_path)
 	{
 		// FILE: <PK file_path> <hash>
 		// FILE_VERSION: <PK hash> <mtime> <md5>
-		
 		
 		// 1. calculate hashes and prepare filesystem paths
 		unsigned char md5[MD5_DIGEST_LENGTH];

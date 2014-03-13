@@ -1,8 +1,5 @@
 #undef _TEST
-#include "database/sqlite.h"
-#include "inotify/inotify.h"
-#include "md5/md5.h"
-
+#include "common.h"
 
 struct options
 {

@@ -1,11 +1,9 @@
 #undef _TEST
-#include "database/sqlite.h"
-#include "inotify/inotify.h"
-#include "md5/md5.h"
 #include "common.h"
 
 void init()
 {
+	DEBUG_PRINT("=====INIT====\n");
 	// prepare ~/.track directory if it doesnt exist already
 	char *home = getenv ("HOME");
 	if (home != NULL)
@@ -22,7 +20,7 @@ void init()
 		}
 	}
 	else
-		printf("creating %s!\n",data_path);
+		printf("Creating %s!\n",data_path);
 
 	// open database (create new one if needed)
 	snprintf(db_path, sizeof(db_path), "%s/db.sql", data_path);
@@ -30,11 +28,14 @@ void init()
 	
 	if(db_open(db_path) != 0)
 		exit(EXIT_FAILURE);
+	DEBUG_PRINT("\n");
 	return;
 }
 
 int parse_args(int argc, char **argv)
 {
+	DEBUG_PRINT("=====ARG PARSE====\n");
+	DEBUG_PRINT("\n");
 	return 0;
 }
 

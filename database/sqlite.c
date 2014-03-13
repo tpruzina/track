@@ -68,11 +68,11 @@ int untrack_file(const char *file)
 	return 0;
 }
 
-int track_file(const char *file)
+int track_file(const char *file_path)
 {
 	// verify rights and open file
 	struct stat st;
-	if(stat(file, &st) == -1)
+	if(stat(file_path, &st) == -1)
 	{
 		exit(-1);
 		//handle error
@@ -81,25 +81,33 @@ int track_file(const char *file)
 	// check wheather file isn't tracked already
 	if(0)
 	{
-
+		// TODO
 	}
 	else // file isn't tracked yet - track it!
 	{
 		// FILE: <PK file_path> <hash>
-		// FILE_VERSION: <PK hash> <backup_path> <mtime> <md5>
+		// FILE_VERSION: <PK hash> <mtime> <md5>
 
-		const char *file_path = file;
 		unsigned char md5[MD5_DIGEST_LENGTH];
-
+		unsigned char filename_hash[MD5_DIGEST_LENGTH];
+		
 		// modification time is already present in (struct stat) st
 
-		// calculate md5
-		md5_calculate_hash(file, md5);
+		// calculate md5 of file itself
+		md5_calculate_hash(file_path, md5);
 	
+		// calculate md5 of filename itself - yeah, its confusing
+		md5_calculate_hash_from_string(file_path, filename_hash);
+
 		// backup file
+		char backup_path[1024] = {0};
+		char *sanitized_file_hash = md5_sanitized_hash(md5);
+		snprintf(backup_path, sizeof(backup_path), "%s/%s",data_path,sanitized_file_hash);
+		DEBUG_PRINT("FILE BACKUP PATH=%s",backup_path);
+		local_copy(file_path,backup_path);
+		free(sanitized_file_hash);
 		
 		// add into database
-		
 		
 	}
 

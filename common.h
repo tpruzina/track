@@ -37,8 +37,8 @@
 
 #include "md5/md5.h"
 #include "database/sqlite.h"
+#include "file/file.h"
 
-extern char hash[MD5_DIGEST_LENGTH];
 extern char data_path[1024];
 extern char db_path[1024];
 

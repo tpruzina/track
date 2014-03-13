@@ -9,7 +9,7 @@ FILE
 <PK file_path> <hash>
 
 FILE_VERSION
-<PK hash> <file backup path> <mtime> <md5>
+<PK hash> <mtime> <md5>
 
 When the file is removed, <md5> string equals zero (this allows for creation
 of snapshots)

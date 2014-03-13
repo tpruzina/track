@@ -36,7 +36,7 @@
 #include <fcntl.h>
 
 #include "md5/md5.h"
-#include "database/sqlite.h"
+#include "database/database.h"
 #include "file/file.h"
 
 extern char data_path[1024];

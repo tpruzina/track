@@ -12,12 +12,10 @@
 #include "common.h"
 
 // global variables
-char hash[MD5_DIGEST_LENGTH];
 char data_path[1024];
 char db_path[1024];
 
 // random string generator
-
 char *generate_random_string(size_t length)
 {
 	int urandom_fd = open("/dev/urandom", O_RDONLY);
@@ -41,3 +39,4 @@ char *generate_random_string(size_t length)
 
 	return result;
 }
+

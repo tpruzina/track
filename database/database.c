@@ -13,46 +13,8 @@
 #include <stdio.h>
 #include <sys/stat.h>
 
+#include "database.h"
 #include "sqlite.h"
-
-sqlite3 *pDB = NULL;
-sqlite3_stmt* query = NULL;
-
-void db_close(void)
-{
-	if (query != NULL)
-		sqlite3_finalize(query);
-	sqlite3_close(pDB);
-	sqlite3_shutdown();
-}
-
-int db_open(const char *path)
-{
-	int ret;
-
-	// initialize sqlite
-	if (SQLITE_OK != (ret = sqlite3_initialize()))
-	{
-		//handle init error
-		return ret;
-	}
-
-	// open/create database
-	if (SQLITE_OK != (ret = sqlite3_open_v2(path, &pDB, SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE, NULL)))
-        {
-		// handle open error
-		printf("Failed to open conn: %d\n", ret);
-		return ret;
-        }
-	else
-		atexit(db_close);	// close database on exit
-
-	// create file table if it does not exist already
-	sqlite3_exec(pDB,"CREATE TABLE IF NOT EXISTS file (path TEXT PRIMARY KEY, hash TEXT)",0,0,0);
-	sqlite3_exec(pDB,"CREATE TABLE IF NOT EXISTS file_version (hash TEXT PRIMARY KEY, mtime INTEGER,md5 TEXT)",0,0,0);
-
-	return 0;
-}
 
 
 int delete_file(const char *file)
@@ -68,8 +30,11 @@ int untrack_file(const char *file)
 	return 0;
 }
 
-int track_file(const char *file_path)
+int track_file(const char *path)
 {
+	// get canonical (full) path to file
+	char *file_path = realpath(path, NULL);
+
 	// verify rights and open file
 	struct stat st;
 	if(stat(file_path, &st) == -1)
@@ -85,9 +50,7 @@ int track_file(const char *file_path)
 	}
 	else // file isn't tracked yet - track it!
 	{
-		// FILE: <PK file_path> <hash>
-		// FILE_VERSION: <PK hash> <mtime> <md5>
-		
+	
 		// 1. calculate hashes and prepare filesystem paths
 		unsigned char md5[MD5_DIGEST_LENGTH];
 		unsigned char hash[MD5_DIGEST_LENGTH];
@@ -114,27 +77,23 @@ int track_file(const char *file_path)
 		local_copy(file_path,backup_path);
 		
 		// 4. add into database
-		
+		// FILE: <PK file_path> <hash>
+		// FILE_VERSION: <PK hash> <mtime> <md5>
+			
 
 		//cleanup
+		free(file_path);
 		free(sanitized_file_hash);
 		free(sanitized_hash);
 	}
 	return 0;
 }
 
+
 int query_file(const char *file)
 {
 	return 0;
 }
 
-#ifdef _TEST
 
-int main(void)
-{
-	db_open("./test.sqldb");
-	return 0;
-}
-
-#endif
 

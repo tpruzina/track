@@ -7,10 +7,10 @@ DAEMON_SOURCES=daemon.c database/sqlite.c md5/md5.c inotify/inotify.c
 all: client daemon
 
 client: $(CLIENT_SOURCES)
-	$(CC) $(CFLAGS) $(LDFLAGS) $(CLIENT_SOURCES) -o tbackup
+	$(CC) $(CFLAGS) $(LDFLAGS) $(CLIENT_SOURCES) -o track
 
 daemon: $(DAEMON_SOURCES)
-	$(CC) $(CFLAGS) $(LDFLAGS) $(DAEMON_SOURCES) -o tbackup_daemon
+	$(CC) $(CFLAGS) $(LDFLAGS) $(DAEMON_SOURCES) -o track_daemon
 
 clean:
-	rm -f tbackup
+	rm -f track

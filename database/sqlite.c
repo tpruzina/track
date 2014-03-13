@@ -11,6 +11,7 @@
 
 #include <stdlib.h>
 #include <stdio.h>
+#include <sys/stat.h>
 
 #include "sqlite.h"
 
@@ -69,6 +70,12 @@ int untrack_file(const char *file)
 int track_file(const char *file)
 {
 	// verify rights and open file
+	struct stat st;
+	if(stat(file, &st) == -1)
+	{
+		exit(-1);
+		//handle error
+	}
 	
 	// check wheather file isn't tracked already
 	
@@ -79,6 +86,10 @@ int track_file(const char *file)
 	return 0;
 }
 
+int query_file(const char *file)
+{
+	return 0;
+}
 
 #ifdef _TEST
 

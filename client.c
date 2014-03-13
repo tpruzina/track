@@ -3,14 +3,32 @@
 #include "inotify/inotify.h"
 #include "md5/md5.h"
 
+// global variables
+static char hash[MD5_DIGEST_LENGTH];
+const char *data_path = "test_data";
+const char *db_path = "db.sql";
+
+int init()
+{
+	db_open(db_path);
+	return 0;
+}
+
+int parse_args(int argc, char **argv)
+{
+	return 0;
+}
 
 int main(int argc, char **argv)
 {
-	inotify_initialize();
-	db_open("db.sql");
+	init();
+	
+	//parse_args(argc,argv);
 
-	static char array[1000];
-	md5_calculate_hash("main.c",array);
+	track_file("client.c");
+
+	//untrack_file("client.c");
+	//delete_file("client.c");
 
 	return 0;
 }

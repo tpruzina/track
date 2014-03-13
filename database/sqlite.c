@@ -9,9 +9,10 @@
  *
  ******************************************************************************/
 
-#include <sqlite3.h>
 #include <stdlib.h>
 #include <stdio.h>
+
+#include "sqlite.h"
 
 sqlite3 *pDB = NULL;
 sqlite3_stmt* query = NULL;
@@ -51,8 +52,30 @@ int db_open(const char *path)
 	return 0;
 }
 
+
+int delete_file(const char *file)
+{
+	// untrack file
+	
+	// delete all instances of a file
+	return 0;
+}
+
+int untrack_file(const char *file)
+{
+	return 0;
+}
+
 int track_file(const char *file)
 {
+	// verify rights and open file
+	
+	// check wheather file isn't tracked already
+	
+	// calculate md5
+	
+	// add into database
+	
 	return 0;
 }
 

@@ -10,7 +10,9 @@
  ******************************************************************************/
 
 #include <stdio.h>
-#include <openssl/md5.h>
+
+#include "md5.h"
+
 
 int md5_calculate_hash(const char *filename, unsigned char hash[MD5_DIGEST_LENGTH])
 {

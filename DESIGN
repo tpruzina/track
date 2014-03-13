@@ -19,4 +19,4 @@ Files
 
 default path for backups is ~/.track
 sql database is stored in ~/.track/db.sql
-files are stared in ~/.track/hash/md5
+files are stored in ~/.track/hash/md5

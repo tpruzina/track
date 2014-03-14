@@ -43,7 +43,6 @@ int track_file(const char *path)
 		exit(EXIT_FAILURE);
 		//handle error
 	}
-	
 
 	// check wheather file isn't tracked already
 	if(db_query_file(file_path) == 0)
@@ -55,6 +54,7 @@ int track_file(const char *path)
 		}
 		else	// file is the same
 		{
+			// update record in database
 			return 0;
 		}
 	}

@@ -127,7 +127,7 @@ int db_query_file(const char *path)
 }
 
 // compares latest tracked revision against current one (md5)
-int db_check_file_for_changes(const char *abs_path)
+int db_check_file_for_changes(char *abs_path)
 {
 	int ret = 0;
 
@@ -143,10 +143,9 @@ int db_check_file_for_changes(const char *abs_path)
 		if(sqlite3_step(query) == SQLITE_ROW)
 		{
 			const unsigned char *md5_old = sqlite3_column_text(query,0);
-			unsigned char md5_new[MD5_DIGEST_LENGTH];
-			md5_calculate_hash(abs_path, md5_new);
+			char *md5_new = md5_sanitized_hash_of_file(abs_path);
 
-			if(strncmp((char *)md5_old, md5_sanitized_hash(md5_new), MD5_DIGEST_LENGTH) == 0)
+			if(strncmp((char *)md5_old, md5_new, MD5_DIGEST_LENGTH) == 0)
 				return 0;
 			else
 				return 1;

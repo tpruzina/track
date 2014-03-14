@@ -15,6 +15,7 @@
 #include <string.h>
 
 #include "sqlite.h"
+#include "../common.h"
 
 sqlite3 *pDB = NULL;
 sqlite3_stmt* query = NULL;
@@ -125,6 +126,7 @@ int db_query_file(const char *path)
 	return ret;
 }
 
+// compares latest tracked revision against current one (md5)
 int db_check_file_for_changes(const char *abs_path)
 {
 	int ret = 0;
@@ -133,7 +135,30 @@ int db_check_file_for_changes(const char *abs_path)
 
 	sqlite3_bind_text(query, 1, abs_path, -1, NULL);
 
-	return (sqlite3_step(query) == SQLITE_ROW) ? 0 : -1;
+	if(sqlite3_step(query) == SQLITE_ROW)
+	{
+		char *hash = sqlite3_column_text(query, 1);
+		sqlite3_prepare_v2(pDB, "select md5 from file_version where hash = ?1 order by mtime;", -1, &query, NULL);
+		sqlite3_bind_text(query,1,hash, -1, NULL);
+		if(sqlite3_step(query) == SQLITE_ROW)
+		{
+			char *md5_old = sqlite3_column_text(query,0);
+			unsigned char md5_new[MD5_DIGEST_LENGTH];
+			md5_calculate_hash(abs_path, md5_new);
+
+			if(strncmp(md5_old, md5_sanitized_hash(md5_new), MD5_DIGEST_LENGTH) == 0)
+				return 0;
+			else
+				return 1;
+		}
+			else exit(EXIT_FAILURE);
+	}
+	else
+	{
+		// this shouldnt happen under normal circumstances since we
+		// already checked that file is tracked
+		exit(EXIT_FAILURE);
+	}
 }
 
 #ifdef _TEST

@@ -49,6 +49,14 @@ int track_file(const char *path)
 	if(db_query_file(file_path) == 0)
 	{
 		DEBUG_PRINT("found %s in database\n", file_path);
+		if(check_file_for_changes(file_path) != 0)
+		{
+			// file has changed
+		}
+		else	// file is the same
+		{
+			return 0;
+		}
 	}
 	else // file isn't tracked yet - track it!
 	{

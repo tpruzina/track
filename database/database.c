@@ -93,6 +93,18 @@ int track_file(const char *path)
 }
 
 
+int check_file_for_changes(const char *file)
+{
+	char *abs_path = realpath(file, NULL);
+
+	int ret = db_check_file_for_changes(abs_path);
+
+	free(abs_path);
+
+	return ret;
+}
+
+
 
 
 

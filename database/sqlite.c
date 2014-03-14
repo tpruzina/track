@@ -125,23 +125,15 @@ int db_query_file(const char *path)
 	return ret;
 }
 
-int check_file_for_changes(const char *path)
+int db_check_file_for_changes(const char *abs_path)
 {
 	int ret = 0;
-	char *file_path = realpath(path, NULL);
 
 	sqlite3_prepare_v2(pDB, "select * from file where path = ?1;", -1, &query, NULL);
 
-	sqlite3_bind_text(query, 1, file_path, -1, NULL);
+	sqlite3_bind_text(query, 1, abs_path, -1, NULL);
 
-	if((ret = sqlite3_step(query)) == SQLITE_ROW)
-		ret = 0;
-	else
-		ret = -1;
-
-	// cleanup
-	free(file_path);
-	return ret;
+	return (sqlite3_step(query) == SQLITE_ROW) ? 0 : -1;
 }
 
 #ifdef _TEST

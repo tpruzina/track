@@ -5,11 +5,15 @@ void init()
 {
 	DEBUG_PRINT("=====INIT====\n");
 
-	// prepare ~/.track directory if it doesnt exist already
-	char *home = getenv ("HOME");
-	if (home != NULL)
-		snprintf(data_path, sizeof(data_path), "%s/.track", home);
-	DEBUG_PRINT("DATA_DIR = %s\n", data_path);
+	if(!data_path)
+	{
+		// prepare ~/.track directory if it doesnt exist already
+		char *home = getenv ("HOME");
+		if (home != NULL)
+			snprintf(data_path, sizeof(data_path), "%s/.track", home);
+	}
+
+	DEBUG_PRINT("TRACK_DATA_PATH = %s\n", data_path);
 
 	if(mkdir(data_path, 0777) != 0)
 	{
@@ -57,8 +61,15 @@ int parse_args(int argc, char **argv)
 	return 0;
 }
 
+int parse_env()
+{
+	data_path = getenv("TRACK_DATA_PATH");
+
+}
+
 int main(int argc, char **argv)
 {
+	parse_env();
 	parse_args(argc,argv);
 	init();
 

@@ -107,30 +107,21 @@ int db_add_file(char *path, char *sanitized_hash, char *md5, long mtime)
 }
 
 // checks wheather file is tracked
-int db_query_file(const char *path)
+int db_query_file(const char *abs_path)
 {
-	int ret = 0;
-	char *file_path = realpath(path, NULL);
-
 	sqlite3_prepare_v2(pDB, "select * from file where path = ?1;", -1, &query, NULL);
+	sqlite3_bind_text(query, 1, abs_path, -1, NULL);
 
-	sqlite3_bind_text(query, 1, file_path, -1, NULL);
-
-	if((ret = sqlite3_step(query)) == SQLITE_ROW)
-		ret = 0;
+	if(sqlite3_step(query) == SQLITE_ROW)
+		return 0;
 	else
-		ret = -1;
-
-	// cleanup
-	free(file_path);
-	return ret;
+		return -1;
 }
 
 // compares latest tracked revision against current one (md5)
-int db_check_file_for_changes(char *abs_path)
+// contraintuively, this will return (char*) md5 of file
+char *db_check_file_for_changes(char *abs_path)
 {
-	int ret = 0;
-
 	sqlite3_prepare_v2(pDB, "select * from file where path = ?1;", -1, &query, NULL);
 
 	sqlite3_bind_text(query, 1, abs_path, -1, NULL);
@@ -146,9 +137,9 @@ int db_check_file_for_changes(char *abs_path)
 			char *md5_new = md5_sanitized_hash_of_file(abs_path);
 
 			if(strncmp((char *)md5_old, md5_new, MD5_DIGEST_LENGTH) == 0)
-				return 0;
+				return NULL;
 			else
-				return 1;
+				return md5_new;
 		}
 			else exit(EXIT_FAILURE);
 	}

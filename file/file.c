@@ -46,6 +46,8 @@ int local_copy(const char *src, const char *dest)
 
 	munmap(dest_addr, ss.st_size);
 	munmap(src_addr, ss.st_size);
+	
+	return 0;
 }
 
 

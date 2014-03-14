@@ -49,7 +49,7 @@ extern char db_path[1024];
 #endif
 
 
-char *generate_random_string(size_t length);
+char *generate_random_string(ssize_t length);
 
 #endif /* __COMMON_H__ */
 

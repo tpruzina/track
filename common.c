@@ -16,7 +16,7 @@ char *data_path;
 char db_path[1024];
 
 // random string generator
-char *generate_random_string(size_t length)
+char *generate_random_string(ssize_t length)
 {
 	int urandom_fd = open("/dev/urandom", O_RDONLY);
 	

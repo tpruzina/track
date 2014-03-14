@@ -51,7 +51,7 @@ int track_file(const char *path)
 		DEBUG_PRINT("found %s in database\n", file_path);
 		if(check_file_for_changes(file_path) != 0)
 		{
-			// file has changed
+			// file has changed - add new version to database!
 		}
 		else	// file is the same
 		{
@@ -110,6 +110,11 @@ int check_file_for_changes(const char *file)
 	free(abs_path);
 
 	return ret;
+}
+
+int update_record(const char *file)
+{
+	return 0;
 }
 
 

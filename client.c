@@ -57,12 +57,16 @@ int parse_args(int argc, char **argv)
 		);
 			
 	}
+	else
+	{
+		printf("%s\n",argv[1]);
+	}
 
 	DEBUG_PRINT("\n");
 	return 0;
 }
 
-int parse_env()
+void parse_env()
 {
 	data_path = getenv("TRACK_DATA_PATH");
 }

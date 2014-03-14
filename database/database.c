@@ -33,11 +33,11 @@ int untrack_file(const char *file)
 int track_file(const char *path)
 {
 	// get canonical (full) path to file
-	char *file_path = realpath(path, NULL);
+	char *abs_path = realpath(path, NULL);
 
 	// verify rights and open file
 	struct stat st;
-	if(stat(file_path, &st) == -1)
+	if(stat(abs_path, &st) == -1)
 	{
 		perror(NULL);
 		exit(EXIT_FAILURE);
@@ -45,10 +45,10 @@ int track_file(const char *path)
 	}
 
 	// check wheather file isn't tracked already
-	if(db_query_file(file_path) == 0)
+	if(db_query_file(abs_path) == 0)
 	{
-		DEBUG_PRINT("found %s in database\n", file_path);
-		if(check_file_for_changes(file_path) != 0)
+		DEBUG_PRINT("found %s in database\n", abs_path);
+		if(check_file_for_changes(abs_path) != 0)
 		{
 			// file has changed - add new version to database!
 		}
@@ -62,19 +62,14 @@ int track_file(const char *path)
 	{
 	
 		// 1. calculate hashes and prepare filesystem paths
-		unsigned char md5[MD5_DIGEST_LENGTH];
-		unsigned char hash[MD5_DIGEST_LENGTH];
 		char backup_path[1024] = {0};
 		char dir_path[1024] = {0};
 		
-		md5_calculate_hash(file_path, md5);
-		char *sanitized_md5 = md5_sanitized_hash(md5);
-		
-		md5_calculate_hash_from_string(file_path, hash);
-		char *sanitized_hash = md5_sanitized_hash(hash);
-		
-		snprintf(dir_path, sizeof(dir_path), "%s/%s", data_path, sanitized_hash);
-		snprintf(backup_path, sizeof(backup_path), "%s/%s/%s",data_path,sanitized_hash,sanitized_md5);
+		char *hash = md5_sanitized_hash_of_string(abs_path);
+		char *md5 = md5_sanitized_hash_of_file(abs_path);
+
+		snprintf(dir_path, sizeof(dir_path), "%s/%s", data_path, hash);
+		snprintf(backup_path, sizeof(backup_path), "%s/%s/%s",data_path,hash,md5);
 		
 		// 2. create directory named "hash of filepath"
 		if(mkdir(dir_path, 0777) != 0)
@@ -84,18 +79,18 @@ int track_file(const char *path)
 		}
 		
 		// 3. copy file into "hash of filepath"/"md5 of file";
-		local_copy(file_path,backup_path);
+		local_copy(abs_path,backup_path);
 		
 		// 4. add into database
 		// FILE: <PK file_path> <hash>
 		// FILE_VERSION: <PK hash> <mtime> <md5>
-		db_add_file(file_path, sanitized_hash, sanitized_md5, st.st_mtime);
+		db_add_file(abs_path, hash, md5, st.st_mtime);
 
 		//cleanup
-		free(sanitized_md5);
-		free(sanitized_hash);
+		free(md5);
+		free(hash);
 	}
-	free(file_path);
+	free(abs_path);
 
 	return 0;
 }

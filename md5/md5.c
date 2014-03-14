@@ -11,11 +11,12 @@
 
 #include <stdio.h>
 #include <string.h>
+#include <stdlib.h>
 
 #include "md5.h"
 
 
-int md5_calculate_hash(const char *filename, unsigned char hash[MD5_DIGEST_LENGTH])
+int md5_calculate_hash_from_file(const char *filename, unsigned char hash[MD5_DIGEST_LENGTH])
 {
 	FILE *inFile = fopen (filename, "rb");
 	MD5_CTX mdContext;
@@ -57,14 +58,31 @@ int md5_calculate_hash_from_string(const char *string, unsigned char hash[MD5_DI
 	return 0;
 }
 
-char *md5_sanitized_hash (unsigned char hash[MD5_DIGEST_LENGTH])
+char *md5_sanitized_hash_of_file (char *file_path)
 {
+	char buffer[MD5_DIGEST_LENGTH];
+	md5_calculate_hash_from_file(file_path, buffer);
+
+	// take byte-hash from buffer and make nice string
 	char *sanitized_hash = malloc(MD5_DIGEST_LENGTH*2+1);
-    	
-	static char buffer[MD5_DIGEST_LENGTH*2+1] = {0};
-    	for (int i = 0; i < MD5_DIGEST_LENGTH; i++)
-        	sprintf(&buffer[i*2], "%02x", (unsigned int)hash[i]);
-	strncpy(sanitized_hash, buffer, MD5_DIGEST_LENGTH*2+1);
+	for(int i=0; i < MD5_DIGEST_LENGTH; i++)
+		sprintf(&sanitized_hash[i*2], "%02x", (unsigned char)buffer[i]);
+	// '0' terminate
+	sanitized_hash[32]='\0';
+	return sanitized_hash;
+	
+}
+
+char *md5_sanitized_hash_of_string(char *string)
+{
+	char buffer[MD5_DIGEST_LENGTH];
+	md5_calculate_hash_from_string(string, buffer);
+
+	char *sanitized_hash = malloc(MD5_DIGEST_LENGTH*2+1);
+	for(int i=0; i < MD5_DIGEST_LENGTH; i++)
+		sprintf(&sanitized_hash[i*2], "%02x", (unsigned char)buffer[i]);
+	// '0' terminate
+	sanitized_hash[32]='\0';
 	return sanitized_hash;
 }
 
@@ -72,8 +90,8 @@ char *md5_sanitized_hash (unsigned char hash[MD5_DIGEST_LENGTH])
 
 int main()
 {
-	unsigned char hash[MD5_DIGEST_LENGTH];
-	md5_calculate_hash("./md5.c",hash);
+	printf("%s\n",md5_sanitized_hash_of_file("md5.c"));
+	printf("%s\n",md5_sanitized_hash_of_string("md5.c"));
 	return 0;
 }
 

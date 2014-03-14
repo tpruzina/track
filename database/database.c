@@ -58,13 +58,13 @@ int track_file(const char *path)
 		char dir_path[1024] = {0};
 		
 		md5_calculate_hash(file_path, md5);
-		char *sanitized_file_hash = md5_sanitized_hash(md5);
+		char *sanitized_md5 = md5_sanitized_hash(md5);
 		
 		md5_calculate_hash_from_string(file_path, hash);
 		char *sanitized_hash = md5_sanitized_hash(hash);
 		
 		snprintf(dir_path, sizeof(dir_path), "%s/%s", data_path, sanitized_hash);
-		snprintf(backup_path, sizeof(backup_path), "%s/%s/%s",data_path,sanitized_hash,sanitized_file_hash);
+		snprintf(backup_path, sizeof(backup_path), "%s/%s/%s",data_path,sanitized_hash,sanitized_md5);
 		
 		// 2. create directory named "hash of filepath"
 		if(mkdir(dir_path, 0777) != 0)
@@ -79,11 +79,11 @@ int track_file(const char *path)
 		// 4. add into database
 		// FILE: <PK file_path> <hash>
 		// FILE_VERSION: <PK hash> <mtime> <md5>
-			
+		db_add_file(file_path, sanitized_hash, sanitized_md5, st.st_mtime);
 
 		//cleanup
 		free(file_path);
-		free(sanitized_file_hash);
+		free(sanitized_md5);
 		free(sanitized_hash);
 	}
 	return 0;

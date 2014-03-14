@@ -11,6 +11,8 @@
 
 #include <stdlib.h>
 #include <stdio.h>
+#include <stdio.h>
+#include <string.h>
 
 #include "sqlite.h"
 
@@ -50,6 +52,47 @@ int db_open(const char *path)
 	sqlite3_exec(pDB,"CREATE TABLE IF NOT EXISTS file (path TEXT PRIMARY KEY, hash TEXT)",0,0,0);
 	sqlite3_exec(pDB,"CREATE TABLE IF NOT EXISTS file_version (hash TEXT PRIMARY KEY, mtime INTEGER,md5 TEXT)",0,0,0);
 
+	return 0;
+}
+
+int db_add_file(char *path, char *sanitized_hash, char *md5, long mtime)
+{
+	if(!pDB)
+		exit(EXIT_FAILURE);
+	/*
+	char *zSQL = sqlite3_mprintf("INSERT INTO file VALUES ('%s,%s')", path, sanitized_hash);
+	sqlite3_exec(pDB, zSQL, 0, 0, 0);
+	sqlite3_free(zSQL);
+	*/
+
+	char *qry= NULL;
+	asprintf(&qry, "insert into file (path, hash) values ('%s', '%s');", path, sanitized_hash);
+	sqlite3_prepare_v2(pDB, qry, strlen(qry), &query, NULL);
+	int ret = sqlite3_step(query);
+	free(qry);
+	
+	if (ret != SQLITE_DONE)
+	{
+		printf("ERROR inserting data: %s\n", sqlite3_errmsg(pDB));
+		return -1;
+	}
+
+	qry=NULL;
+	asprintf(
+		&qry,
+		"insert into file_version (hash, mtime, md5) values ('%s', %ld, '%s')",
+		sanitized_hash, mtime,md5
+	);
+	sqlite3_prepare_v2(pDB, qry, strlen(qry), &query, NULL);
+	ret = sqlite3_step(query);
+	free(qry);	
+
+	if (ret != SQLITE_DONE)
+	{
+		printf("ERROR inserting data: %s\n", sqlite3_errmsg(pDB));
+		return -1;
+	}
+	
 	return 0;
 }
 

@@ -12,7 +12,7 @@
 #include "common.h"
 
 // global variables
-char data_path[1024];
+char *data_path;
 char db_path[1024];
 
 // random string generator

@@ -7,10 +7,11 @@ void init()
 
 	if(!data_path)
 	{
+		data_path = malloc(1024);
 		// prepare ~/.track directory if it doesnt exist already
 		char *home = getenv ("HOME");
 		if (home != NULL)
-			snprintf(data_path, sizeof(data_path), "%s/.track", home);
+			snprintf(data_path, 1024, "%s/.track", home);
 	}
 
 	DEBUG_PRINT("TRACK_DATA_PATH = %s\n", data_path);
@@ -52,7 +53,7 @@ int parse_args(int argc, char **argv)
 			"track --sync\t\t synchronizes new files\n"
 			"track --untrack\t\t stops tracking file (backup persists)\n"
 			"track --rm\t\t removes all backups of a file\n"
-			"track --snapshot <mtime>\t\t creates snapshot of files [FILE]"
+			"track --snapshot <mtime>\t\t creates snapshot of files [FILE]\n\n"
 		);
 			
 	}
@@ -64,7 +65,6 @@ int parse_args(int argc, char **argv)
 int parse_env()
 {
 	data_path = getenv("TRACK_DATA_PATH");
-
 }
 
 int main(int argc, char **argv)
@@ -80,6 +80,7 @@ int main(int argc, char **argv)
 	//untrack_file("client.c");
 	//delete_file("client.c");
 
+	free(data_path);
 	return 0;
 }
 

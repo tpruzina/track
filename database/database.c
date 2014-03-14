@@ -42,11 +42,12 @@ int track_file(const char *path)
 		exit(EXIT_FAILURE);
 		//handle error
 	}
-		
+	
+
 	// check wheather file isn't tracked already
-	if(0)
+	if(query_file(file_path) == 0)
 	{
-		// TODO
+		DEBUG_PRINT("found %s in database\n", file_path);
 	}
 	else // file isn't tracked yet - track it!
 	{
@@ -82,18 +83,15 @@ int track_file(const char *path)
 		db_add_file(file_path, sanitized_hash, sanitized_md5, st.st_mtime);
 
 		//cleanup
-		free(file_path);
 		free(sanitized_md5);
 		free(sanitized_hash);
 	}
+	free(file_path);
+
 	return 0;
 }
 
 
-int query_file(const char *file)
-{
-	return 0;
-}
 
 
 

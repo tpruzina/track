@@ -96,6 +96,45 @@ int db_add_file(char *path, char *sanitized_hash, char *md5, long mtime)
 	return 0;
 }
 
+// checks wheather file is tracked
+int query_file(const char *path)
+{
+	int ret = 0;
+	char *file_path = realpath(path, NULL);
+
+	sqlite3_prepare_v2(pDB, "select * from file where path = ?1;", -1, &query, NULL);
+
+	sqlite3_bind_text(query, 1, file_path, -1, NULL);
+
+	if((ret = sqlite3_step(query)) == SQLITE_ROW)
+		ret = 0;
+	else
+		ret = -1;
+
+	// cleanup
+	free(file_path);
+	return ret;
+}
+
+int check_file_for_changes(const char *path)
+{
+	int ret = 0;
+	char *file_path = realpath(path, NULL);
+
+	sqlite3_prepare_v2(pDB, "select * from file where path = ?1;", -1, &query, NULL);
+
+	sqlite3_bind_text(query, 1, file_path, -1, NULL);
+
+	if((ret = sqlite3_step(query)) == SQLITE_ROW)
+		ret = 0;
+	else
+		ret = -1;
+
+	// cleanup
+	free(file_path);
+	return ret;
+}
+
 #ifdef _TEST
 
 int main(void)

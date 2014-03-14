@@ -7,5 +7,6 @@ void db_close(void);
 int db_open(const char *path);
 
 int db_add_file(char *path, char *sanitized_hash, char *md5, long mtime);
+int query_file(const char *path);
 
 #endif

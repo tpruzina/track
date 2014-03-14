@@ -39,7 +39,7 @@
 #include "database/database.h"
 #include "file/file.h"
 
-extern char data_path[1024];
+extern char *data_path;
 extern char db_path[1024];
 
 #ifdef _DEBUG

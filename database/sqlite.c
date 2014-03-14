@@ -59,16 +59,18 @@ int db_add_file(char *path, char *sanitized_hash, char *md5, long mtime)
 {
 	if(!pDB)
 		exit(EXIT_FAILURE);
-	/*
-	char *zSQL = sqlite3_mprintf("INSERT INTO file VALUES ('%s,%s')", path, sanitized_hash);
-	sqlite3_exec(pDB, zSQL, 0, 0, 0);
-	sqlite3_free(zSQL);
-	*/
-
+	int ret;
 	char *qry= NULL;
-	asprintf(&qry, "insert into file (path, hash) values ('%s', '%s');", path, sanitized_hash);
+	
+	// insert record into file(path,hash)
+	ret = asprintf(&qry, "insert into file (path, hash) values ('%s', '%s');", path, sanitized_hash);
+	if(ret <= 0)
+	{
+		perror(NULL);
+		exit(EXIT_FAILURE);
+	}
 	sqlite3_prepare_v2(pDB, qry, strlen(qry), &query, NULL);
-	int ret = sqlite3_step(query);
+	ret = sqlite3_step(query);
 	free(qry);
 	
 	if (ret != SQLITE_DONE)
@@ -77,12 +79,19 @@ int db_add_file(char *path, char *sanitized_hash, char *md5, long mtime)
 		return -1;
 	}
 
+	// insert record into file_version(hash, mtime, md5)
 	qry=NULL;
-	asprintf(
+	ret = asprintf(
 		&qry,
 		"insert into file_version (hash, mtime, md5) values ('%s', %ld, '%s')",
 		sanitized_hash, mtime,md5
 	);
+	if(ret <= 0)
+	{
+		perror(NULL);
+		exit(EXIT_FAILURE);
+	}
+
 	sqlite3_prepare_v2(pDB, qry, strlen(qry), &query, NULL);
 	ret = sqlite3_step(query);
 	free(qry);	
@@ -97,7 +106,7 @@ int db_add_file(char *path, char *sanitized_hash, char *md5, long mtime)
 }
 
 // checks wheather file is tracked
-int query_file(const char *path)
+int db_query_file(const char *path)
 {
 	int ret = 0;
 	char *file_path = realpath(path, NULL);

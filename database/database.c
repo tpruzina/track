@@ -39,13 +39,14 @@ int track_file(const char *path)
 	struct stat st;
 	if(stat(file_path, &st) == -1)
 	{
+		perror(NULL);
 		exit(EXIT_FAILURE);
 		//handle error
 	}
 	
 
 	// check wheather file isn't tracked already
-	if(query_file(file_path) == 0)
+	if(db_query_file(file_path) == 0)
 	{
 		DEBUG_PRINT("found %s in database\n", file_path);
 	}

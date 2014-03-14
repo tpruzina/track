@@ -38,6 +38,21 @@ int parse_args(int argc, char **argv)
 {
 	DEBUG_PRINT("=====ARG PARSE====\n");
 
+	if(argc <= 1)
+	{
+		printf(
+			"TRACK\n"
+			"Usage:\n"
+			"track --add\t\t tracks new file\n"
+			"track --commit\n"
+			"track --sync\t\t synchronizes new files\n"
+			"track --untrack\t\t stops tracking file (backup persists)\n"
+			"track --rm\t\t removes all backups of a file\n"
+			"track --snapshot <mtime>\t\t creates snapshot of files [FILE]\n"
+		);
+			
+	}
+
 	DEBUG_PRINT("\n");
 	return 0;
 }

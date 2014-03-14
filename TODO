@@ -1,0 +1,12 @@
+TODO (H - high, M - medium, L - low)
+
+H - implement basic functionality
+  - add
+  - commit
+  - sync
+  - untrack
+  - rm
+
+M - implement snapshots (tgz)
+
+L - protect against possible sql injections via crafted files

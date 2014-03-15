@@ -56,6 +56,25 @@ int db_open(const char *path)
 	return 0;
 }
 
+int db_update_file_record(char *hash, char *md5, long mtime)
+{
+	if(!pDB)
+		exit(EXIT_FAILURE);
+	char *qry = NULL;
+
+	asprintf(
+		&qry,
+		"insert into file_version (hash, mtime, md5) values ('%s', %ld, '%s')",
+		hash, mtime, md5
+	);
+	
+	sqlite3_prepare_v2(pDB, qry, strlen(qry), &query, NULL);
+	sqlite3_step(query);
+	free(qry);
+
+	return 0;
+}
+
 int db_add_file(char *path, char *sanitized_hash, char *md5, long mtime)
 {
 	if(!pDB)
@@ -120,7 +139,7 @@ int db_query_file(const char *abs_path)
 
 // compares latest tracked revision against current one (md5)
 // contraintuively, this will return (char*) md5 of file
-char *db_check_file_for_changes(char *abs_path)
+char *db_check_file_for_changes_md5(char *abs_path)
 {
 	sqlite3_prepare_v2(pDB, "select * from file where path = ?1;", -1, &query, NULL);
 
@@ -150,6 +169,12 @@ char *db_check_file_for_changes(char *abs_path)
 		exit(EXIT_FAILURE);
 	}
 }
+
+int db_check_file_for_changes_mtime(char *abs_path)
+{
+	return 0;
+}
+
 
 #ifdef _TEST
 

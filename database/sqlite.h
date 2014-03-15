@@ -8,6 +8,10 @@ int db_open(const char *path);
 
 int db_add_file(char *path, char *sanitized_hash, char *md5, long mtime);
 int db_query_file(const char *path);
-char *db_check_file_for_changes(char *abs_path);
+
+int db_check_file_for_changes_mtime(char *abs_path);
+char *db_check_file_for_changes_md5(char *abs_path);
+
+int db_update_file_record(char *hash, char *md5, long mtime);
 
 #endif

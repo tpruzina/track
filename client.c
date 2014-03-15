@@ -35,7 +35,6 @@ void init()
 	if(db_open(db_path) != 0)
 		exit(EXIT_FAILURE);
 	
-	DEBUG_PRINT("\n");
 	return;
 }
 
@@ -53,7 +52,7 @@ int parse_args(int argc, char **argv)
 			"track --sync\t\t synchronizes new files\n"
 			"track --untrack\t\t stops tracking file (backup persists)\n"
 			"track --rm\t\t removes all backups of a file\n"
-			"track --snapshot <mtime>\t\t creates snapshot of files [FILE]\n\n"
+			"track --snapshot <mtime>\t\t creates snapshot of files [FILE]\n"
 		);
 			
 	}

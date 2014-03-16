@@ -42,11 +42,13 @@
 extern char *data_path;
 extern char db_path[1024];
 
-#ifdef _DEBUG
-#define DEBUG_PRINT(...) do{ fprintf( stderr, __VA_ARGS__ ); } while( 0 )
-#else
-#define DEBUG_PRINT(...) do{ } while ( 0 )
-#endif
+#define DEBUG 0
+#define NOTICE 1
+#define ERROR 2
+
+extern int log_level;
+#define PRINT(x, ...) do { if(log_level <= (x)) fprintf(stdout, __VA_ARGS__ ); } while ( 0 )
+
 
 
 char *generate_random_string(ssize_t length);

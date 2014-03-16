@@ -3,7 +3,9 @@
 
 void init()
 {
-	DEBUG_PRINT("=====INIT====\n");
+	PRINT(DEBUG,"=====INIT====\n");
+
+	log_level = DEBUG;
 
 	if(!data_path)
 	{
@@ -14,7 +16,7 @@ void init()
 			snprintf(data_path, 1024, "%s/.track", home);
 	}
 
-	DEBUG_PRINT("TRACK_DATA_PATH = %s\n", data_path);
+	PRINT(DEBUG,"TRACK_DATA_PATH = %s\n", data_path);
 
 	if(mkdir(data_path, 0777) != 0)
 	{
@@ -30,7 +32,7 @@ void init()
 
 	// open database (create new one if needed)
 	snprintf(db_path, sizeof(db_path), "%s/db.sql", data_path);
-	DEBUG_PRINT("DB_PATH = %s\n",db_path);
+	PRINT(DEBUG,"DB_PATH = %s\n",db_path);
 	
 	if(db_open(db_path) != 0)
 		exit(EXIT_FAILURE);
@@ -40,7 +42,7 @@ void init()
 
 int parse_args(int argc, char **argv)
 {
-	DEBUG_PRINT("=====ARG PARSE====\n");
+	PRINT(DEBUG,"=====ARG PARSE====\n");
 
 	if(argc <= 1)
 	{
@@ -61,7 +63,7 @@ int parse_args(int argc, char **argv)
 		printf("%s\n",argv[1]);
 	}
 
-	DEBUG_PRINT("\n");
+	PRINT(DEBUG,"\n");
 	return 0;
 }
 
@@ -86,4 +88,5 @@ int main(int argc, char **argv)
 	free(data_path);
 	return 0;
 }
+
 

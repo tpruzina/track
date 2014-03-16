@@ -54,11 +54,12 @@ int track_file(const char *path)
 	// check wheather file isn't tracked already
 	if(db_query_file(abs_path) == 0)
 	{
-		DEBUG_PRINT("found %s in database\n", abs_path);
-		if((md5 = check_file_for_changes_md5(abs_path)) != NULL)
+		PRINT(DEBUG, "found %s in database\n", abs_path);
+		//if((md5 = check_file_for_changes_md5(abs_path)) != NULL)
+		if(check_file_for_changes_mtime(abs_path, hash) != 0)
 		{
 			// file has changed - add new version to database!
-			DEBUG_PRINT("%s has changed\n",abs_path);
+			PRINT(DEBUG,"%s has changed\n",abs_path);
 
 			snprintf(backup_path, sizeof(backup_path), "%s/%s/%s",data_path,hash,md5);
 
@@ -68,16 +69,15 @@ int track_file(const char *path)
 		}
 		else	// file is the same
 		{
-			DEBUG_PRINT("%s hasn't changed\n",abs_path);
+			PRINT(DEBUG,"%s hasn't changed\n",abs_path);
 			// update record in database
 		}
 	}
 	else // file isn't tracked yet - track it!
 	{
+		PRINT(DEBUG,"%s not found in database\n", abs_path);
 	
 		// 1. calculate hashes and prepare filesystem paths
-
-		
 		md5 = md5_sanitized_hash_of_file(abs_path);
 
 		snprintf(dir_path, sizeof(dir_path), "%s/%s", data_path, hash);
@@ -108,9 +108,26 @@ int track_file(const char *path)
 }
 
 // cheap check
-int check_file_for_changes_mtime(char *abs_path)
+int check_file_for_changes_mtime(char *abs_path, char *hash)
 {
-	return db_check_file_for_changes_mtime(abs_path);
+	int ret;
+	struct stat st;
+	if(stat(abs_path, &st) == -1)
+	{
+		perror(NULL);
+		exit(EXIT_FAILURE);
+	}
+	
+	if(hash == NULL)
+	{
+		hash = md5_sanitized_hash_of_string(abs_path);
+		ret = db_check_file_for_changes_mtime(hash, st.st_mtime);
+		free(hash);
+	}
+	else
+		ret = db_check_file_for_changes_mtime(hash, st.st_mtime);
+
+	return ret;
 }
 
 // hard check

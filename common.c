@@ -15,6 +15,8 @@
 char *data_path;
 char db_path[1024];
 
+int log_level;
+
 // random string generator
 char *generate_random_string(ssize_t length)
 {

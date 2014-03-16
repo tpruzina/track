@@ -62,11 +62,13 @@ int db_update_file_record(char *hash, char *md5, long mtime)
 		exit(EXIT_FAILURE);
 	char *qry = NULL;
 
-	asprintf(
+	if(0 >= asprintf(
 		&qry,
 		"insert into file_version (hash, mtime, md5) values ('%s', %ld, '%s')",
-		hash, mtime, md5
-	);
+		hash, mtime, md5))
+	{
+		exit(EXIT_FAILURE);
+	}
 	
 	sqlite3_prepare_v2(pDB, qry, strlen(qry), &query, NULL);
 	sqlite3_step(query);
@@ -170,9 +172,23 @@ char *db_check_file_for_changes_md5(char *abs_path)
 	}
 }
 
-int db_check_file_for_changes_mtime(char *abs_path)
+int db_check_file_for_changes_mtime(char *hash, long mtime)
 {
-	return 0;
+	const char *qmsg = "SELECT * from file_version where hash == ?1 AND mtime == ?2";
+	sqlite3_prepare_v2(pDB, qmsg, -1, &query, NULL);
+	sqlite3_bind_text(query,1,hash,-1,NULL);
+	sqlite3_bind_int(query, 2, mtime);
+
+	if(sqlite3_step(query) == SQLITE_ROW)
+	{
+		PRINT(DEBUG,"mtime compares the same\n");
+		return 0;
+	}
+	else
+	{
+		PRINT(DEBUG,"mtime differs\n");
+		return -1;
+	}
 }
 
 

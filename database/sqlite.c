@@ -43,7 +43,7 @@ int db_open(const char *path)
 	if (SQLITE_OK != (ret = sqlite3_open_v2(path, &pDB, SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE, NULL)))
         {
 		// handle open error
-		printf("Failed to open conn: %d\n", ret);
+		PRINT(ERROR,"Failed to open conn: %d\n", ret);
 		return ret;
         }
 	else
@@ -174,6 +174,7 @@ char *db_check_file_for_changes_md5(char *abs_path)
 
 int db_check_file_for_changes_mtime(char *hash, long mtime)
 {
+	int ret;
 	const char *qmsg = "SELECT * from file_version where hash == ?1 AND mtime == ?2";
 	sqlite3_prepare_v2(pDB, qmsg, -1, &query, NULL);
 	sqlite3_bind_text(query,1,hash,-1,NULL);
@@ -182,13 +183,16 @@ int db_check_file_for_changes_mtime(char *hash, long mtime)
 	if(sqlite3_step(query) == SQLITE_ROW)
 	{
 		PRINT(DEBUG,"mtime compares the same\n");
-		return 0;
+		ret = 0;
 	}
 	else
 	{
 		PRINT(DEBUG,"mtime differs\n");
-		return -1;
+		ret = -1;
 	}
+	// cleanup
+	
+	return ret;
 }
 
 

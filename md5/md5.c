@@ -31,11 +31,6 @@ int md5_calculate_hash_from_file(const char *filename, unsigned char hash[MD5_DI
 		MD5_Update(&mdContext, data, bytes);
 	MD5_Final(hash,&mdContext);
 
-#ifdef _DEBUG
-	for(int i = 0; i < MD5_DIGEST_LENGTH; i++)
-		printf("%02x", hash[i]);
-	printf (" %s\n", filename);
-#endif
 	fclose (inFile);
 	return 0;
 }
@@ -48,12 +43,6 @@ int md5_calculate_hash_from_string(const char *string, unsigned char hash[MD5_DI
 	MD5_Init(&mdContext);
 	MD5_Update(&mdContext, string, strlen(string));
 	MD5_Final(hash, &mdContext);
-
-#ifdef _DEBUG
-	for(int i = 0; i < MD5_DIGEST_LENGTH; i++)
-		printf("%02x", hash[i]);
-	printf (" \"%s\"\n", string);
-#endif
 
 	return 0;
 }

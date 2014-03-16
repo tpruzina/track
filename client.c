@@ -15,8 +15,10 @@ void init()
 		if (home != NULL)
 			snprintf(data_path, 1024, "%s/.track", home);
 	}
+	else
+		data_path = realpath(data_path, NULL);
 
-	PRINT(DEBUG,"TRACK_DATA_PATH = %s\n", data_path);
+	PRINT(ERROR,"TRACK_DATA_PATH = %s\n", data_path);
 
 	if(mkdir(data_path, 0777) != 0)
 	{
@@ -46,6 +48,7 @@ int parse_args(int argc, char **argv)
 
 	if(argc <= 1)
 	{
+/*
 		printf(
 			"TRACK\n"
 			"Usage:\n"
@@ -56,7 +59,7 @@ int parse_args(int argc, char **argv)
 			"track --rm\t\t removes all backups of a file\n"
 			"track --snapshot <mtime>\t\t creates snapshot of files [FILE]\n"
 		);
-			
+*/			
 	}
 	else
 	{

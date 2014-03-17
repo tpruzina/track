@@ -78,8 +78,8 @@ void parse_env()
 
 int main(int argc, char **argv)
 {
-	init();
 	parse_env();
+	init();
 	int action = parse_args(argc,argv);
 
 	switch(action)

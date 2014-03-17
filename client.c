@@ -76,6 +76,11 @@ void parse_env()
 	data_path = getenv("TRACK_DATA_PATH");
 }
 
+void cleanup()
+{
+	free(data_path);
+}
+
 int main(int argc, char **argv)
 {
 	parse_env();
@@ -94,7 +99,7 @@ int main(int argc, char **argv)
 	//untrack_file("client.c");
 	//delete_file("client.c");
 
-	free(data_path);
+	cleanup();
 	return 0;
 }
 

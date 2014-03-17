@@ -90,14 +90,13 @@ int main(int argc, char **argv)
 	switch(action)
 	{
 		case TRACK_HELP:	print_help();	break;
+		case TRACK_ADD:				break;
+		case TRACK_RM:				break;
+		case TRACK_SNAPSHOT:			break;
+		case TRACK_SYNC:			break;
 	}
 
 	track_file("client.c");
-
-	//local_copy("client.c","client.b");
-
-	//untrack_file("client.c");
-	//delete_file("client.c");
 
 	cleanup();
 	return 0;

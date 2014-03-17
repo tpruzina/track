@@ -17,19 +17,6 @@
 #include "sqlite.h"
 
 
-int delete_file(const char *file)
-{
-	// untrack file
-	
-	// delete all instances of a file
-	return 0;
-}
-
-int untrack_file(const char *file)
-{
-	return 0;
-}
-
 int track_file(const char *path)
 {
 	// get canonical (full) path to file
@@ -70,7 +57,7 @@ int track_file(const char *path)
 		else	// file is the same
 		{
 			PRINT(DEBUG,"%s hasn't changed\n",abs_path);
-			// update record in database
+			// e.g. do nothing
 		}
 	}
 	else // file isn't tracked yet - track it!
@@ -139,10 +126,6 @@ char *check_file_for_changes_md5(char *abs_path)
 	return db_check_file_for_changes_md5(abs_path);
 }
 
-int update_record(const char *file)
-{
-	return 0;
-}
 
 
 

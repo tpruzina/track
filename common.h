@@ -49,7 +49,16 @@ extern char db_path[1024];
 extern int log_level;
 #define PRINT(x, ...) do { if(log_level <= (x)) fprintf(stdout, __VA_ARGS__ ); } while ( 0 )
 
-
+enum actions
+{
+	TRACK_HELP,
+	TRACK_ADD,
+	TRACK_COMMIT,
+	TRACK_SYNC,
+	TRACK_UNTRACK,
+	TRACK_RM,
+	TRACK_SNAPSHOT
+};
 
 char *generate_random_string(ssize_t length);
 

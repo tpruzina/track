@@ -49,7 +49,7 @@ int md5_calculate_hash_from_string(const char *string, unsigned char hash[MD5_DI
 
 char *md5_sanitized_hash_of_file (char *file_path)
 {
-	char buffer[MD5_DIGEST_LENGTH];
+	unsigned char buffer[MD5_DIGEST_LENGTH];
 	md5_calculate_hash_from_file(file_path, buffer);
 
 	// take byte-hash from buffer and make nice string
@@ -64,7 +64,7 @@ char *md5_sanitized_hash_of_file (char *file_path)
 
 char *md5_sanitized_hash_of_string(char *string)
 {
-	char buffer[MD5_DIGEST_LENGTH];
+	unsigned char buffer[MD5_DIGEST_LENGTH];
 	md5_calculate_hash_from_string(string, buffer);
 
 	char *sanitized_hash = malloc(MD5_DIGEST_LENGTH*2+1);

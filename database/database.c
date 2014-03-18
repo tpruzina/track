@@ -16,6 +16,20 @@
 #include "database.h"
 #include "sqlite.h"
 
+// check every record in database for changes
+int sync_all()
+{
+
+}
+
+int create_snapshot()
+{
+	/*
+	 * 1) add snapshot record into database with current time
+	 * 2)
+	 */
+}
+
 
 int track_file(const char *path)
 {

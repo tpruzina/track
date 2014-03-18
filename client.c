@@ -76,7 +76,7 @@ void parse_env()
 	data_path = getenv("TRACK_DATA_PATH");
 }
 
-void cleanup()
+void clean_up()
 {
 	free(data_path);
 }
@@ -93,13 +93,15 @@ int main(int argc, char **argv)
 		case TRACK_ADD:				break;
 		case TRACK_RM:				break;
 		case TRACK_SNAPSHOT:			break;
-		case TRACK_SYNC:			break;
+		case TRACK_SYNC:	sync();		break;
 	}
 
 	track_file("client.c");
 
-	cleanup();
+
+	clean_up();
 	return 0;
 }
+
 
 

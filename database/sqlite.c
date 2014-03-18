@@ -52,6 +52,7 @@ int db_open(const char *path)
 	// create file table if it does not exist already
 	sqlite3_exec(pDB,"CREATE TABLE IF NOT EXISTS file (path TEXT PRIMARY KEY, hash TEXT)",0,0,0);
 	sqlite3_exec(pDB,"CREATE TABLE IF NOT EXISTS file_version (hash TEXT PRIMARY KEY, mtime INTEGER,md5 TEXT)",0,0,0);
+	sqlite3_exec(pDB,"CREATE TABLE IF NOT EXISTS snapshot (time INTEGER PRIMARY KEY, discription TEXT)",0,0,0);
 
 	return 0;
 }

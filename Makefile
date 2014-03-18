@@ -4,6 +4,7 @@ DEBUGFLAGS=-D_DEBUG -Wall -Wextra -g
 
 CLIENT_SOURCES=common.c client.c database/sqlite.c database/database.c md5/md5.c file/file.c
 
+ALL: all
 all: client
 
 client: $(CLIENT_SOURCES)

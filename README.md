@@ -7,4 +7,4 @@ LICENSE: GPLv2
 AUTHOR: Tomas Pruzina (pruzinat@gmail.com)
 
 
-![image](/docs/database.png)
+![image](https://raw.github.com/tpruzina/track/master/docs/database.png)

@@ -5,7 +5,8 @@
 #include "sqlite.h"
 
 int track_file(const char *path);
-int sync_all();
+
+int create_snapshot(char *desc);
 
 int check_file_for_changes_mtime(char *abs_path, char *hash);
 char *check_file_for_changes_md5(char *abs_path);

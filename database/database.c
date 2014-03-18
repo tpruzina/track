@@ -12,22 +12,17 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <sys/stat.h>
+#include <time.h>
 
 #include "database.h"
 #include "sqlite.h"
 
-// check every record in database for changes
-int sync_all()
-{
 
-}
-
-int create_snapshot()
+int create_snapshot(char *desc)
 {
-	/*
-	 * 1) add snapshot record into database with current time
-	 * 2)
-	 */
+	db_create_snapshot_record(time(NULL),desc);
+
+	return 0;
 }
 
 

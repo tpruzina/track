@@ -97,7 +97,7 @@ int main(int argc, char **argv)
 	}
 
 	track_file("client.c");
-
+	create_snapshot("test");
 
 	clean_up();
 	return 0;

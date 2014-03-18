@@ -49,10 +49,15 @@ int db_open(const char *path)
 	else
 		atexit(db_close);	// close database on exit
 
-	// create file table if it does not exist already
-	sqlite3_exec(pDB,"CREATE TABLE IF NOT EXISTS file (path TEXT PRIMARY KEY, hash TEXT)",0,0,0);
-	sqlite3_exec(pDB,"CREATE TABLE IF NOT EXISTS file_version (hash TEXT PRIMARY KEY, mtime INTEGER,md5 TEXT)",0,0,0);
-	sqlite3_exec(pDB,"CREATE TABLE IF NOT EXISTS snapshot (time INTEGER PRIMARY KEY, discription TEXT)",0,0,0);
+	// create database tables if they don't already exist
+	sqlite3_exec(pDB,"PRAGMA foreign_keys = ON",0,0,0);
+	sqlite3_exec(pDB,"CREATE TABLE IF NOT EXISTS file (hash TEXT PRIMARY KEY, path TEXT)",0,0,0);
+
+	sqlite3_exec(pDB,"CREATE TABLE IF NOT EXISTS file_version (id INTEGER PRIMARY KEY, mtime INTEGER,md5 TEXT, hash TEXT, FOREIGN KEY(hash) REFERENCES file(hash))",0,0,0);
+
+	sqlite3_exec(pDB,"CREATE TABLE IF NOT EXISTS snapshot (time INTEGER PRIMARY KEY, description TEXT)",0,0,0);
+
+	sqlite3_exec(pDB,"CREATE TABLE IF NOT EXISTS snapshot_file(fv_id TEXT, s_time INTEGER, FOREIGN KEY(fv_id) REFERENCES file_version(id), FOREIGN KEY(s_time) REFERENCES snapshot(time))",0,0,0);
 
 	return 0;
 }
@@ -75,6 +80,29 @@ int db_update_file_record(char *hash, char *md5, long mtime)
 	sqlite3_step(query);
 	free(qry);
 
+	return 0;
+}
+
+int db_create_snapshot_record(long t,char *desc)
+{
+	if(!pDB)
+		exit(EXIT_FAILURE);
+
+	sqlite3_stmt *insert_query;
+
+	sqlite3_prepare_v2(pDB, "insert into snapshot (time, description) values (?1, ?2);", -1, &insert_query, NULL);
+	sqlite3_bind_int(insert_query, 1, t);
+	sqlite3_bind_text(insert_query, 2, desc, -1, NULL);
+
+	if (sqlite3_step(insert_query) != SQLITE_DONE)
+	{
+		sqlite3_errmsg(pDB);
+		PRINT(ERROR,"Error inserting into 'snapshot' db!\n");
+		exit(EXIT_FAILURE);
+	}
+
+	if(insert_query)
+		sqlite3_finalize(insert_query);
 	return 0;
 }
 

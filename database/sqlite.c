@@ -57,7 +57,7 @@ int db_open(const char *path)
 
 	sqlite3_exec(pDB,"CREATE TABLE IF NOT EXISTS snapshot (time INTEGER PRIMARY KEY, description TEXT)",0,0,0);
 
-	sqlite3_exec(pDB,"CREATE TABLE IF NOT EXISTS snapshot_file(fv_id TEXT, s_time INTEGER, FOREIGN KEY(fv_id) REFERENCES file_version(id), FOREIGN KEY(s_time) REFERENCES snapshot(time))",0,0,0);
+	sqlite3_exec(pDB,"CREATE TABLE IF NOT EXISTS snapshot_file(fv_id INTEGER, s_time INTEGER, FOREIGN KEY(fv_id) REFERENCES file_version(id), FOREIGN KEY(s_time) REFERENCES snapshot(time))",0,0,0);
 
 	return 0;
 }
@@ -103,6 +103,49 @@ int db_create_snapshot_record(long t,char *desc)
 
 	if(insert_query)
 		sqlite3_finalize(insert_query);
+	return 0;
+}
+
+int db_create_snapshot(long t)
+{
+	/*
+	 * snapshot record is created, now link newest file_versions to snapshot
+	 * for each file:
+	 * 	insert into snapshot_file (fv_id, s_time) values (newest(file_version_id), t)
+	 */
+
+	if(!pDB)
+		exit(EXIT_FAILURE);
+
+	sqlite3_stmt *file_query;
+	sqlite3_stmt *add_fv_id_into_snapshot_query;
+
+	//sqlite3_prepare_v2(pDB,"select fv.* from file_version fv INNER JOIN (SELECT hash, MAX(mtime) AS latestt FROM file_version GROUP BY hash) latest on fv.mtime = latest.latestt and fv.hash = latest.hash", -1, &file_query, NULL);
+	sqlite3_prepare_v2(pDB,"select fv.id from file_version fv INNER JOIN (SELECT hash, MAX(mtime) AS latestt FROM file_version GROUP BY hash) latest on fv.mtime = latest.latestt and fv.hash = latest.hash", -1, &file_query, NULL);
+
+//	sqlite3_bind_int(add_fv_id_into_snapshot_query,1,5);
+//	sqlite3_bind_int(add_fv_id_into_snapshot_query,2,5);
+//	sqlite3_step(add_fv_id_into_snapshot_query);
+
+	int ret;
+	while(SQLITE_ROW == (ret =sqlite3_step(file_query)))
+	{
+		// for each file_and matching version records, find ids that has latest mtime and add them into snapshot
+		//printf("%d|%s|%s|%s\n", sqlite3_column_int(file_query,0), sqlite3_column_text(file_query,1), sqlite3_column_text(file_query,2), sqlite3_column_text(file_query,3));
+		//printf("%d\n",sqlite3_column_int(file_query,0));
+
+		sqlite3_prepare_v2(pDB,"insert into snapshot_file (fv_id, s_time) values (?1, ?2);",-1, &add_fv_id_into_snapshot_query, NULL);
+		sqlite3_bind_int(add_fv_id_into_snapshot_query,1,sqlite3_column_int(file_query,0));
+		sqlite3_bind_int(add_fv_id_into_snapshot_query,2,t);
+		sqlite3_step(add_fv_id_into_snapshot_query);
+		sqlite3_finalize(add_fv_id_into_snapshot_query);
+	}
+
+	if(file_query)
+		sqlite3_finalize(file_query);
+//	if(add_fv_id_into_snapshot_query)
+//		sqlite3_finalize(add_fv_id_into_snapshot_query);
+
 	return 0;
 }
 

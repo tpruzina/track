@@ -42,6 +42,7 @@
 extern char *data_path;
 extern char db_path[1024];
 
+// PRINT MACRO
 #define DEBUG 0
 #define NOTICE 1
 #define ERROR 2
@@ -63,6 +64,4 @@ enum actions
 char *generate_random_string(ssize_t length);
 
 #endif /* __COMMON_H__ */
-
-
 

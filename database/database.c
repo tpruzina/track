@@ -20,7 +20,10 @@
 
 int create_snapshot(char *desc)
 {
-	db_create_snapshot_record(time(NULL),desc);
+	//todo: error handling
+	long t = time(NULL);
+	db_create_snapshot_record(t,desc);
+	db_create_snapshot(t);
 
 	return 0;
 }
@@ -61,6 +64,7 @@ int track_file(const char *path)
 
 			local_copy(abs_path, backup_path);
 			
+			md5 = md5_sanitized_hash_of_file(abs_path);
 			db_update_file_record(hash, md5, st.st_mtime);
 		}
 		else	// file is the same

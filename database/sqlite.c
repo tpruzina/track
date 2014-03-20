@@ -25,8 +25,12 @@ void db_close(void)
 	if (query != NULL)
 		sqlite3_finalize(query);
 	sqlite3_close(pDB);
-	sqlite3_exec(pDB,"COMMIT",0,0,0);
 	sqlite3_shutdown();
+}
+
+void db_commit(void)
+{
+	sqlite3_exec(pDB,"COMMIT",0,0,0);
 }
 
 int db_open(const char *path)

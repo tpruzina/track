@@ -4,6 +4,8 @@
 #include <sqlite3.h>
 
 void db_close(void);
+void db_commit(void);
+
 int db_open(const char *path);
 
 int db_add_file(char *path, char *sanitized_hash, char *md5, long mtime);

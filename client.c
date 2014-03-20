@@ -79,6 +79,8 @@ void parse_env()
 void clean_up()
 {
 	free(data_path);
+	// only commit to database if everything went ok
+	db_commit();
 }
 
 int main(int argc, char **argv)

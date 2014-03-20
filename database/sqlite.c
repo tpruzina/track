@@ -25,6 +25,7 @@ void db_close(void)
 	if (query != NULL)
 		sqlite3_finalize(query);
 	sqlite3_close(pDB);
+	sqlite3_exec(pDB,"COMMIT",0,0,0);
 	sqlite3_shutdown();
 }
 
@@ -51,6 +52,10 @@ int db_open(const char *path)
 
 	// create database tables if they don't already exist
 	sqlite3_exec(pDB,"PRAGMA foreign_keys = ON",0,0,0);
+
+	// lock database
+	sqlite3_exec(pDB, "PRAGMA locking_mode = EXCLUSIVE; BEGIN EXCLUSIVE;",0,0,0);
+	
 	sqlite3_exec(pDB,"CREATE TABLE IF NOT EXISTS file (hash TEXT PRIMARY KEY, path TEXT)",0,0,0);
 
 	sqlite3_exec(pDB,"CREATE TABLE IF NOT EXISTS file_version (id INTEGER PRIMARY KEY, mtime INTEGER,md5 TEXT, hash TEXT, FOREIGN KEY(hash) REFERENCES file(hash))",0,0,0);

@@ -98,7 +98,6 @@ int main(int argc, char **argv)
 		case TRACK_SYNC:	sync();		break;
 	}
 
-	track_file("client.c");
 	track_file("common.h");
 	track_file("common.c");
 

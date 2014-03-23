@@ -98,11 +98,13 @@ int track_file(const char *path)
 		// FILE_VERSION: <PK hash> <mtime> <md5>
 		db_add_file(abs_path, hash, md5, st.st_mtime);
 
-		//cleanup
-		free(md5);
-		free(hash);
+
 	}
 	free(abs_path);
+	if(hash)
+		free(hash);
+	if(md5)
+		free(md5);
 
 	return 0;
 }

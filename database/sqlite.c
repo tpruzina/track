@@ -18,12 +18,10 @@
 #include "../common.h"
 
 sqlite3 *pDB = NULL;
-sqlite3_stmt* query = NULL;
+//sqlite3_stmt* query = NULL;
 
 void db_close(void)
 {
-	if (query != NULL)
-		sqlite3_finalize(query);
 	sqlite3_close(pDB);
 	sqlite3_shutdown();
 }
@@ -76,6 +74,7 @@ int db_update_file_record(char *hash, char *md5, long mtime)
 	if(!pDB)
 		exit(EXIT_FAILURE);
 	char *qry = NULL;
+	sqlite3_stmt *query;
 
 	if(0 >= asprintf(
 		&qry,
@@ -164,6 +163,7 @@ int db_add_file(char *path, char *sanitized_hash, char *md5, long mtime)
 		exit(EXIT_FAILURE);
 	int ret;
 	char *qry= NULL;
+	sqlite3_stmt *query;
 	
 	// insert record into file(path,hash)
 	ret = asprintf(&qry, "insert into file (path, hash) values ('%s', '%s');", path, sanitized_hash);
@@ -205,16 +205,25 @@ int db_add_file(char *path, char *sanitized_hash, char *md5, long mtime)
 		return -1;
 	}
 	
+	if (query != NULL)
+		sqlite3_finalize(query);
+
 	return 0;
 }
 
 // checks wheather file is tracked
 int db_query_file(const char *abs_path)
 {
+	sqlite3_stmt *query;
 	sqlite3_prepare_v2(pDB, "select * from file where path = ?1;", -1, &query, NULL);
 	sqlite3_bind_text(query, 1, abs_path, -1, NULL);
 
-	if(sqlite3_step(query) == SQLITE_ROW)
+	int ret = sqlite3_step(query);
+
+	if (query != NULL)
+		sqlite3_finalize(query);
+
+	if(ret == SQLITE_ROW)
 		return 0;
 	else
 		return -1;
@@ -224,6 +233,7 @@ int db_query_file(const char *abs_path)
 // contraintuively, this will return (char*) md5 of file
 char *db_check_file_for_changes_md5(char *abs_path)
 {
+	sqlite3_stmt *query;
 	sqlite3_prepare_v2(pDB, "select * from file where path = ?1;", -1, &query, NULL);
 
 	sqlite3_bind_text(query, 1, abs_path, -1, NULL);
@@ -251,13 +261,14 @@ char *db_check_file_for_changes_md5(char *abs_path)
 		// already checked that file is tracked
 		exit(EXIT_FAILURE);
 	}
+
 }
 
 int db_check_file_for_changes_mtime(char *hash, long mtime)
 {
 	int ret;
-	const char *qmsg = "SELECT * from file_version where hash == ?1 AND mtime == ?2";
-	sqlite3_prepare_v2(pDB, qmsg, -1, &query, NULL);
+	sqlite3_stmt *query;
+	sqlite3_prepare_v2(pDB, "SELECT * from file_version where hash == ?1 AND mtime == ?2", -1, &query, NULL);
 	sqlite3_bind_text(query,1,hash,-1,NULL);
 	sqlite3_bind_int(query, 2, mtime);
 
@@ -272,6 +283,8 @@ int db_check_file_for_changes_mtime(char *hash, long mtime)
 		ret = -1;
 	}
 	// cleanup
+	if(query)
+		sqlite3_finalize(query);
 	
 	return ret;
 }

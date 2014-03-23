@@ -34,6 +34,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <fcntl.h>
+#include <time.h>
 
 #include "md5/md5.h"
 #include "database/database.h"
@@ -62,6 +63,8 @@ enum actions
 };
 
 char *generate_random_string(ssize_t length);
+
+void print_time(time_t time);
 
 #endif /* __COMMON_H__ */
 

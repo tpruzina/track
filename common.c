@@ -42,3 +42,9 @@ char *generate_random_string(ssize_t length)
 	return result;
 }
 
+void print_time(time_t time)
+{
+	const char *t = ctime(&time);
+	printf("%s",t);
+
+}

@@ -69,6 +69,33 @@ int db_open(const char *path)
 	return 0;
 }
 
+int db_list_file_versions(char *hash)
+{
+	if(!pDB)
+		exit(EXIT_FAILURE);
+
+	int count = 0;
+	
+	sqlite3_stmt *query;
+
+	sqlite3_prepare_v2(pDB, "select * from file_version fv where fv.hash = ?1", -1, &query, NULL);
+	sqlite3_bind_text(query,1,hash, -1, NULL);
+
+	while(sqlite3_step(query) == SQLITE_ROW)
+	{
+		count++;
+		PRINT(NOTICE,"%d|",count);
+		PRINT(NOTICE,"%s|",sqlite3_column_text(query,2));
+		print_time(sqlite3_column_int(query,1));
+	}
+
+	if(query)
+		sqlite3_finalize(query);
+	
+	return count;
+}
+
+
 int db_update_file_record(char *hash, char *md5, long mtime)
 {
 	if(!pDB)
@@ -152,7 +179,7 @@ int db_create_snapshot(long t)
 	if(file_query)
 		sqlite3_finalize(file_query);
 //	if(add_fv_id_into_snapshot_query)
-//		sqlite3_finalize(add_fv_id_into_snapshot_query);
+//	 	sqlite3_finalize(add_fv_id_into_snapshot_query);
 
 	return 0;
 }

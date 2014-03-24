@@ -22,10 +22,24 @@ int create_snapshot(char *desc)
 {
 	//todo: error handling
 	long t = time(NULL);
+	if(desc == NULL)
+		desc = ctime(&t);
+
 	db_create_snapshot_record(t,desc);
 	db_create_snapshot(t);
 
 	return 0;
+}
+
+int list_file_versions(char *path)
+{
+	char *abs_path = realpath(path,NULL);
+	char *hash = md5_sanitized_hash_of_string(abs_path);
+
+	int ret = db_list_file_versions(hash);
+	free(hash);
+
+	return ret;
 }
 
 
@@ -101,6 +115,7 @@ int track_file(const char *path)
 
 	}
 	free(abs_path);
+
 	if(hash)
 		free(hash);
 	if(md5)

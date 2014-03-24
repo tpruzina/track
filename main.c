@@ -5,7 +5,7 @@ void init()
 {
 	PRINT(DEBUG,"=====INIT====\n");
 
-	log_level = DEBUG;
+	log_level = NOTICE;
 
 	if(!data_path)
 	{
@@ -63,9 +63,6 @@ void print_help()
 		"TRACK\n"
 		"Usage:\n"
 		"track --add\t\t tracks new file\n"
-		"track --commit\n"
-		"track --sync\t\t synchronizes new files\n"
-		"track --untrack\t\t stops tracking file (backup persists)\n"
 		"track --rm\t\t removes all backups of a file\n"
 		"track --snapshot <mtime>\t\t creates snapshot of files [FILE]\n"
 	);
@@ -83,6 +80,16 @@ void clean_up()
 	db_commit();
 }
 
+void add(int argc, char **argv)
+{
+	for(int i=2; i < argc; i++)
+	{
+		PRINT(DEBUG,"%d %s\n",i,argv[i]);
+		track_file(argv[i]);
+	}
+
+}
+
 int main(int argc, char **argv)
 {
 	parse_env();
@@ -94,14 +101,21 @@ int main(int argc, char **argv)
 		case TRACK_HELP:	print_help();	break;
 		case TRACK_ADD:				break;
 		case TRACK_RM:				break;
-		case TRACK_SNAPSHOT:			break;
-		case TRACK_SYNC:	sync();		break;
+		case TRACK_SNAPSHOT:	create_snapshot(NULL);		break;
 	}
 
-	track_file("common.h");
-	track_file("common.c");
+	time_t t= time(NULL);
 
-	create_snapshot("test2");
+	printf("%s\n",ctime(&t));
+	add(argc,argv);
+
+//	track_file("common.h");
+//	track_file("common.c");
+
+//	create_snapshot("test2");
+	create_snapshot(NULL);
+
+	list_file_versions("common.h");
 
 	clean_up();
 	return 0;

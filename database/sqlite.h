@@ -17,6 +17,8 @@ char *db_check_file_for_changes_md5(char *abs_path);
 int db_create_snapshot_record(long t, char *desc);
 int db_create_snapshot(long t);
 
+int db_list_file_versions(char *hash);
+
 int db_update_file_record(char *hash, char *md5, long mtime);
 
 #endif

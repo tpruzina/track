@@ -1,5 +1,4 @@
 /******************************************************************************
- * %FILE%  [:VIM_EVAL:]ls[:END_EVAL:]
  * Author: Tomas Pruzina <pruzinat@gmail.com>
  * 
  * Permission is hereby granted, free of charge, to any person
@@ -46,7 +45,8 @@ extern char db_path[1024];
 // PRINT MACRO
 #define DEBUG 0
 #define NOTICE 1
-#define ERROR 2
+#define MESSAGE 2
+#define ERROR 3
 
 extern int log_level;
 #define PRINT(x, ...) do { if(log_level <= (x)) fprintf(stdout, __VA_ARGS__ ); } while ( 0 )

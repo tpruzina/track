@@ -21,4 +21,6 @@ int db_list_file_versions(char *hash);
 
 int db_update_file_record(char *hash, char *md5, long mtime);
 
+int db_sync_files_md5();
+
 #endif

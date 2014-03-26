@@ -4,14 +4,24 @@
 #include "../common.h"
 #include "sqlite.h"
 
+// add file into backup or update record
 int track_file(const char *path);
 
+
+// create current snapshot of files
 int create_snapshot(char *desc);
 
+// compare file with newest database record
 int check_file_for_changes_mtime(char *abs_path, char *hash);
 char *check_file_for_changes_md5(char *abs_path);
 
+// list all backed up 
 int list_file_versions(char *path);
 
+// print statistics (todo)
+int print_stats();
+
+// sync all files - commit new versions (does not create snapshot)
+int sync_files();
 
 #endif

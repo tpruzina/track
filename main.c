@@ -5,7 +5,7 @@ void init()
 {
 	PRINT(DEBUG,"=====INIT====\n");
 
-	log_level = NOTICE;
+	log_level = DEBUG;
 
 	if(!data_path)
 	{
@@ -87,8 +87,15 @@ void add(int argc, char **argv)
 		PRINT(DEBUG,"%d %s\n",i,argv[i]);
 		track_file(argv[i]);
 	}
+}
+
+// valide backup (recalculate hashes and compare them with database)
+void validate()
+{
 
 }
+
+
 
 int main(int argc, char **argv)
 {
@@ -107,15 +114,16 @@ int main(int argc, char **argv)
 	time_t t= time(NULL);
 
 	printf("%s\n",ctime(&t));
-	add(argc,argv);
+	//add(argc,argv);
 
 //	track_file("common.h");
 //	track_file("common.c");
 
 //	create_snapshot("test2");
-	create_snapshot(NULL);
+	//create_snapshot(NULL);
 
 	list_file_versions("common.h");
+	sync_files();
 
 	clean_up();
 	return 0;

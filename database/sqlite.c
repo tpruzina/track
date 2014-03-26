@@ -95,6 +95,60 @@ int db_list_file_versions(char *hash)
 	return count;
 }
 
+char *db_get_newest_md5(char *hash)
+{
+	if(!hash)
+		return NULL;
+
+	sqlite3_stmt *query_md5;
+	sqlite3_prepare_v2(pDB,"select md5 from file_version where hash = $1 order by mtime DESC;",-1,&query_md5,NULL);
+	sqlite3_bind_text(query_md5,1,hash, -1,NULL);
+
+	char*string = malloc(MD5_DIGEST_LENGTH*2+1);
+
+	int ret = sqlite3_step(query_md5);
+	if(ret == SQLITE_ROW || ret == SQLITE_DONE)
+	{
+		strcpy(string,sqlite3_column_text(query_md5,0));
+		sqlite3_finalize(query_md5);
+		return string;
+	}
+	else
+		return NULL;
+}
+
+int db_sync_files_md5()
+{
+	if(!pDB)
+		exit(EXIT_FAILURE);
+
+	sqlite3_stmt *query_files;
+
+	sqlite3_prepare_v2(pDB, "select hash,path from file;",-1, &query_files, NULL);
+
+	while(sqlite3_step(query_files) == SQLITE_ROW)
+	{
+		char *hash = (char *)sqlite3_column_text(query_files,0);
+		char *path = (char *)sqlite3_column_text(query_files,1);
+
+		const char *curr = md5_sanitized_hash_of_file(path);
+		const char *newest_in_db = db_get_newest_md5(hash);
+
+		PRINT(DEBUG,"checking %s:\t md5_new=%s\t md5_db: %s\n",path, curr, newest_in_db);
+
+		if(strcmp(newest_in_db,curr) == 0)
+		{
+			PRINT(DEBUG,"OK\n");
+		}
+		else
+			PRINT(DEBUG,"NEWER FILE\n");
+	}
+
+	if(query_files)
+		sqlite3_finalize(query_files);
+
+	return 0;
+}
 
 int db_update_file_record(char *hash, char *md5, long mtime)
 {

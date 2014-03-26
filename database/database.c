@@ -42,7 +42,21 @@ int list_file_versions(char *path)
 	return ret;
 }
 
+int print_stats()
+{
+	return 0;
+}
 
+int sync_files()
+{
+	return db_sync_files_md5();
+}
+
+/* 
+ * Add file into database and make backup
+ * if file is already in database, then check for changes and commit them
+ * (if any)
+ */
 int track_file(const char *path)
 {
 	// get canonical (full) path to file

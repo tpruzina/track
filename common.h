@@ -57,10 +57,10 @@ enum actions
 {
 	TRACK_HELP,
 	TRACK_ADD,
-	TRACK_COMMIT,
 	TRACK_SYNC,
 	TRACK_RM,
-	TRACK_SNAPSHOT
+	TRACK_SNAPSHOT,
+	TRACK_VERIFY
 };
 
 char *generate_random_string(ssize_t length);

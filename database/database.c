@@ -17,6 +17,8 @@
 #include "database.h"
 #include "sqlite.h"
 
+int (*check_file_for_changes)(char*, char*) = check_file_for_changes_mtime;
+
 int restore_snapshot(char *path)
 {
 	//create directory
@@ -89,13 +91,21 @@ int track_file(const char *path)
 		exit(EXIT_FAILURE);
 		//handle error
 	}
+	else
+	{
+		if(!S_ISREG(st.st_mode))
+		{
+			PRINT(DEBUG,"%s isn't a regular file!\n",abs_path);
+			return 0;
+		}
+	}
 
 	// check wheather file isn't tracked already
 	if(db_query_file(abs_path) == 0)
 	{
 		PRINT(DEBUG, "found %s in database\n", abs_path);
 		//if((md5 = check_file_for_changes_md5(abs_path)) != NULL)
-		if(check_file_for_changes_mtime(abs_path, hash) != 0)
+		if(check_file_for_changes(abs_path, hash) != 0)
 		{
 			// file has changed - add new version to database!
 			PRINT(DEBUG,"%s has changed\n",abs_path);
@@ -152,6 +162,22 @@ int track_file(const char *path)
 
 int remove_file(const char *path)
 {
+	// todo: since multiple files may have same md5 (copies),
+	// make damn sure we don't destroy backup copies that are linked by something else
+
+	char *abs_path = realpath(path,NULL);
+
+	// if file isn't tracked.. nothing to do
+	if(db_query_file(abs_path) == -1)
+		goto cleanup;
+
+	// if file is tracked, attempt to remove each version of the file
+	// from both backup folder and database
+
+
+
+cleanup:
+	free(abs_path);
 	return 0;
 }
 

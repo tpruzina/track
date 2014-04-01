@@ -4,6 +4,9 @@
 #include "../common.h"
 #include "sqlite.h"
 
+// extern pointer to hard/soft (mtime vs md5) compare function
+extern int (*check_file_for_changes)(char*, char*);
+
 // add file into backup or update record
 int track_file(const char *path);
 

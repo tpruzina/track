@@ -24,6 +24,7 @@ int restore_snapshot(char *path)
 	//verify snapshot exist
 
 	//copy each file from snapshot onto new location (might require some path magic)
+	return 0;
 }
 
 

@@ -113,7 +113,7 @@ char *db_get_newest_md5(char *hash)
 	int ret = sqlite3_step(query_md5);
 	if(ret == SQLITE_ROW || ret == SQLITE_DONE)
 	{
-		strcpy(string,sqlite3_column_text(query_md5,0));
+		strcpy(string,(char*)sqlite3_column_text(query_md5,0));
 		sqlite3_finalize(query_md5);
 		return string;
 	}

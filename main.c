@@ -109,6 +109,7 @@ void rm(int argc, char **argv)
 int validate()
 {
 	// foreach file version(hash, md5) recalculate hash and compare
+	return  0;
 }
 
 

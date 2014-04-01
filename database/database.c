@@ -17,6 +17,15 @@
 #include "database.h"
 #include "sqlite.h"
 
+int restore_snapshot(char *path)
+{
+	//create directory
+
+	//verify snapshot exist
+
+	//copy each file from snapshot onto new location (might require some path magic)
+}
+
 
 int create_snapshot(char *desc)
 {
@@ -37,7 +46,9 @@ int list_file_versions(char *path)
 	char *hash = md5_sanitized_hash_of_string(abs_path);
 
 	int ret = db_list_file_versions(hash);
+
 	free(hash);
+	free(abs_path);
 
 	return ret;
 }
@@ -135,6 +146,11 @@ int track_file(const char *path)
 	if(md5)
 		free(md5);
 
+	return 0;
+}
+
+int remove_file(const char *path)
+{
 	return 0;
 }
 

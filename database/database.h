@@ -7,6 +7,7 @@
 // add file into backup or update record
 int track_file(const char *path);
 
+int remove_file(const char *path);
 
 // create current snapshot of files
 int create_snapshot(char *desc);

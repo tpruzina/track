@@ -11,9 +11,10 @@ void init()
 	{
 		data_path = malloc(1024);
 		// prepare ~/.track directory if it doesnt exist already
-		char *home = getenv ("HOME");
-		if (home != NULL)
-			snprintf(data_path, 1024, "%s/.track", home);
+		//char *home = getenv ("HOME");
+		//if (home != NULL)
+		//	snprintf(data_path, 1024, "%s/.track", home);
+		snprintf(data_path,1024,"./.track");
 	}
 	else
 		data_path = realpath(data_path, NULL);
@@ -51,8 +52,14 @@ int parse_args(int argc, char **argv)
 	else
 	{
 		printf("%s\n",argv[1]);
+		if(strcmp("--add",argv[1]) == 0)
+			return TRACK_ADD;
+		else if(strcmp("--rm",argv[1]) == 0)
+			return TRACK_RM;
+		else if(strcmp("--snapshot", argv[1]) == 0)
+			return TRACK_SNAPSHOT;
+		//todo: else...
 	}
-
 	PRINT(DEBUG,"\n");
 	return 0;
 }
@@ -89,10 +96,19 @@ void add(int argc, char **argv)
 	}
 }
 
-// valide backup (recalculate hashes and compare them with database)
-void validate()
+void rm(int argc, char **argv)
 {
+	for(int i=2; i < argc; i++)
+	{
+		PRINT(DEBUG, "%d removing: %s\n",i,argv[i]);
+		remove_file(argv[i]);
+	}
+}
 
+// valide backup (recalculate hashes and compare them with database)
+int validate()
+{
+	// foreach file version(hash, md5) recalculate hash and compare
 }
 
 
@@ -105,15 +121,16 @@ int main(int argc, char **argv)
 
 	switch(action)
 	{
-		case TRACK_HELP:	print_help();	break;
-		case TRACK_ADD:				break;
-		case TRACK_RM:				break;
-		case TRACK_SNAPSHOT:	create_snapshot(NULL);		break;
+		case TRACK_HELP:	print_help();		break;
+		case TRACK_ADD:		add(argc,argv);		break;
+		case TRACK_RM:		rm(argc,argv);		break;
+		case TRACK_SNAPSHOT:	create_snapshot(NULL);	break;
+		case TRACK_SYNC:	sync_files();		break;
 	}
 
-	time_t t= time(NULL);
+//	time_t t= time(NULL);
+//	printf("%s\n",ctime(&t));
 
-	printf("%s\n",ctime(&t));
 	//add(argc,argv);
 
 //	track_file("common.h");
@@ -122,8 +139,8 @@ int main(int argc, char **argv)
 //	create_snapshot("test2");
 	//create_snapshot(NULL);
 
-	list_file_versions("common.h");
-	sync_files();
+//	list_file_versions("main.c");
+	//sync_files();
 
 	clean_up();
 	return 0;

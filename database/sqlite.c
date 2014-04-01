@@ -66,6 +66,10 @@ int db_open(const char *path)
 
 	sqlite3_exec(pDB,"CREATE TABLE IF NOT EXISTS snapshot_file(fv_id INTEGER, s_time INTEGER, FOREIGN KEY(fv_id) REFERENCES file_version(id), FOREIGN KEY(s_time) REFERENCES snapshot(time))",0,0,0);
 
+	// todo: untrack - add tracking boolean
+
+	//sqlite_exec(pDB,"CREATE TABLE IF NOT EXISTS file (hash TEXT PRIMARY KEY, path TEXT, tracked BOOLEAN),0,0,0);
+
 	return 0;
 }
 

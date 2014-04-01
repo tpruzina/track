@@ -1,7 +1,7 @@
 #!/bin/bash
 
 make clean
-rm -rf .track
+#rm -rf .track
 make debug
 ./track --add `find . -type f -name '*.[c,h]'`
 echo

@@ -135,7 +135,7 @@ int main(int argc, char **argv)
 		case TRACK_RM:		rm(argc,argv);		break;
 		case TRACK_SNAPSHOT:	create_snapshot(NULL);	break;
 		case TRACK_VERIFY:	validate();		break;
-		case TRACK_SHOW:	show();		break;
+		case TRACK_SHOW:	show();			break;
 
 	}
 

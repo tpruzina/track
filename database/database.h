@@ -7,6 +7,11 @@
 // extern pointer to hard/soft (mtime vs md5) compare function
 extern int (*check_file_for_changes)(char*, char*);
 
+// given id, restores full snapshot into given directory
+int restore_snapshot(int id, char *path);
+
+
+
 // add file into backup or update record
 int track_file(const char *path);
 

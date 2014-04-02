@@ -21,6 +21,11 @@ void init()
 
 	PRINT(ERROR,"TRACK_DATA_PATH = %s\n", data_path);
 
+	if(enforce_md5)
+		check_file_for_changes = check_file_for_changes_md5;
+	else
+		check_file_for_changes = check_file_for_changes_mtime;
+
 	if(mkdir(data_path, 0777) != 0)
 	{
 		if(errno != EEXIST)
@@ -77,6 +82,7 @@ void print_help()
 
 void parse_env()
 {
+	enforce_md5 = getenv("TRACK_FORCE_MD5");
 	data_path = getenv("TRACK_DATA_PATH");
 }
 
@@ -91,7 +97,7 @@ void add(int argc, char **argv)
 {
 	for(int i=2; i < argc; i++)
 	{
-		PRINT(DEBUG,"%d %s\n",i,argv[i]);
+		PRINT(DEBUG,"%d adding/updating: %s\n",i,argv[i]);
 		track_file(argv[i]);
 	}
 }

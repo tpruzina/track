@@ -19,7 +19,7 @@
 
 int (*check_file_for_changes)(char*, char*) = check_file_for_changes_mtime;
 
-int restore_snapshot(char *path)
+int restore_snapshot(int id, char *path)
 {
 	//create directory
 
@@ -170,6 +170,9 @@ int remove_file(const char *path)
 	// if file isn't tracked.. nothing to do
 	if(db_query_file(abs_path) == -1)
 		goto cleanup;
+
+
+	db_remove_file(abs_path);
 
 	// if file is tracked, attempt to remove each version of the file
 	// from both backup folder and database

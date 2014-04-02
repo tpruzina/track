@@ -41,6 +41,7 @@
 #include "file/file.h"
 
 extern char *data_path;
+extern char *enforce_md5;
 extern char db_path[1024];
 
 // PRINT MACRO

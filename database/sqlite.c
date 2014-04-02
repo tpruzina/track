@@ -374,6 +374,24 @@ int db_check_file_for_changes_mtime(char *hash, long mtime)
 	return ret;
 }
 
+int db_remove_file(const char *abs_path)
+{
+	int ret;
+	sqlite3_stmt *query;
+	sqlite3_prepare_v2(pDB, "DELETE FROM file WHERE path = ?1", -1, &query, NULL);
+	sqlite3_bind_text(query, 1, abs_path,-1,NULL);
+
+	if(sqlite3_step(query) != SQLITE_DONE)
+		ret = -1;
+	else
+		ret = 0;
+
+	if(query)
+		sqlite3_finalize(query);
+
+	return ret;
+}
+
 
 #ifdef _TEST
 

@@ -13,6 +13,7 @@
 
 // global variables
 char *data_path;
+char *enforce_md5;
 char db_path[1024];
 
 int log_level;

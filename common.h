@@ -35,6 +35,7 @@
 #include <fcntl.h>
 #include <time.h>
 #include <string.h>
+#include <stdbool.h>
 
 #include "md5/md5.h"
 #include "database/database.h"
@@ -58,7 +59,7 @@ enum actions
 {
 	TRACK_HELP,
 	TRACK_ADD,
-	TRACK_SYNC,
+	TRACK_SHOW,
 	TRACK_RM,
 	TRACK_SNAPSHOT,
 	TRACK_VERIFY

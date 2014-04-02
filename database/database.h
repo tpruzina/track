@@ -31,6 +31,6 @@ int list_file_versions(char *path);
 int print_stats();
 
 // sync all files - commit new versions (does not create snapshot)
-int sync_files();
+int show();
 
 #endif

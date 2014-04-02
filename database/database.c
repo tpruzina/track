@@ -13,6 +13,7 @@
 #include <stdio.h>
 #include <sys/stat.h>
 #include <time.h>
+#include <stdbool.h>
 
 #include "database.h"
 #include "sqlite.h"
@@ -61,9 +62,9 @@ int print_stats()
 	return 0;
 }
 
-int sync_files()
+int show()
 {
-	return db_sync_files_md5();
+	return db_showchanged_files_md5();
 }
 
 /* 
@@ -115,7 +116,7 @@ int track_file(const char *path)
 			local_copy(abs_path, backup_path);
 			
 			md5 = md5_sanitized_hash_of_file(abs_path);
-			db_update_file_record(hash, md5, st.st_mtime);
+			db_add_file_record(hash, md5, st.st_mtime);
 		}
 		else	// file is the same
 		{
@@ -172,12 +173,10 @@ int remove_file(const char *path)
 		goto cleanup;
 
 
-	db_remove_file(abs_path);
+	db_untrack_file(abs_path,NULL);
 
 	// if file is tracked, attempt to remove each version of the file
 	// from both backup folder and database
-
-
 
 cleanup:
 	free(abs_path);

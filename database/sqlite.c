@@ -58,17 +58,13 @@ int db_open(const char *path)
 	// lock database
 	sqlite3_exec(pDB, "PRAGMA locking_mode = EXCLUSIVE; BEGIN EXCLUSIVE;",0,0,0);
 	
-	sqlite3_exec(pDB,"CREATE TABLE IF NOT EXISTS file (hash TEXT PRIMARY KEY, path TEXT)",0,0,0);
+	sqlite3_exec(pDB,"CREATE TABLE IF NOT EXISTS file (hash TEXT PRIMARY KEY, path TEXT, tracked INTEGER)",0,0,0);
 
 	sqlite3_exec(pDB,"CREATE TABLE IF NOT EXISTS file_version (id INTEGER PRIMARY KEY, mtime INTEGER,md5 TEXT, hash TEXT, FOREIGN KEY(hash) REFERENCES file(hash))",0,0,0);
 
 	sqlite3_exec(pDB,"CREATE TABLE IF NOT EXISTS snapshot (time INTEGER PRIMARY KEY, description TEXT)",0,0,0);
 
 	sqlite3_exec(pDB,"CREATE TABLE IF NOT EXISTS snapshot_file(fv_id INTEGER, s_time INTEGER, FOREIGN KEY(fv_id) REFERENCES file_version(id), FOREIGN KEY(s_time) REFERENCES snapshot(time))",0,0,0);
-
-	// todo: untrack - add tracking boolean
-
-	//sqlite_exec(pDB,"CREATE TABLE IF NOT EXISTS file (hash TEXT PRIMARY KEY, path TEXT, tracked BOOLEAN),0,0,0);
 
 	return 0;
 }
@@ -121,7 +117,7 @@ char *db_get_newest_md5(char *hash)
 		return NULL;
 }
 
-int db_sync_files_md5()
+int db_showchanged_files_md5()
 {
 	if(!pDB)
 		exit(EXIT_FAILURE);
@@ -138,14 +134,8 @@ int db_sync_files_md5()
 		const char *curr = md5_sanitized_hash_of_file(path);
 		const char *newest_in_db = db_get_newest_md5(hash);
 
-		PRINT(DEBUG,"checking %s:\t md5_new=%s\t md5_db: %s\n",path, curr, newest_in_db);
-
-		if(strcmp(newest_in_db,curr) == 0)
-		{
-			PRINT(DEBUG,"OK\n");
-		}
-		else
-			PRINT(DEBUG,"NEWER FILE\n");
+		if(strcmp(newest_in_db,curr) != 0)
+			PRINT(NOTICE,"changed:%s\t md5_new=%s\t md5_db: %s\n",path, curr, newest_in_db);
 	}
 
 	if(query_files)
@@ -154,7 +144,29 @@ int db_sync_files_md5()
 	return 0;
 }
 
-int db_update_file_record(char *hash, char *md5, long mtime)
+int db_set_file_tracking(char *hash, bool value)
+{
+	int ret = -1;
+
+	sqlite3_stmt *query;
+
+	int set = value ? 1 : 0;
+
+	sqlite3_prepare_v2(pDB, "UPDATE file SET tracked = ?1 WHERE hash = ?2 ",-1,&query,NULL);
+	sqlite3_bind_int(query,1,set);
+	sqlite3_bind_text(query,2,hash,-1,NULL);
+
+	if(sqlite3_step(query) == SQLITE_DONE)
+		ret = 0; // todo error checking
+	else
+		ret = -1;
+
+	sqlite3_finalize(query);
+
+	return ret;
+}
+
+int db_add_file_record(char *hash, char *md5, long mtime)
 {
 	if(!pDB)
 		exit(EXIT_FAILURE);
@@ -251,7 +263,7 @@ int db_add_file(char *path, char *sanitized_hash, char *md5, long mtime)
 	sqlite3_stmt *query;
 	
 	// insert record into file(path,hash)
-	ret = asprintf(&qry, "insert into file (path, hash) values ('%s', '%s');", path, sanitized_hash);
+	ret = asprintf(&qry, "insert into file (path, hash, tracked) values ('%s', '%s', %d);", path, sanitized_hash, 1);
 	if(ret <= 0)
 	{
 		perror(NULL);
@@ -374,12 +386,26 @@ int db_check_file_for_changes_mtime(char *hash, long mtime)
 	return ret;
 }
 
-int db_remove_file(const char *abs_path)
+// stops tracking file, but still retains data covered by snapshots
+int db_untrack_file(const char *abs_path, const char *hash)
 {
 	int ret;
 	sqlite3_stmt *query;
-	sqlite3_prepare_v2(pDB, "DELETE FROM file WHERE path = ?1", -1, &query, NULL);
-	sqlite3_bind_text(query, 1, abs_path,-1,NULL);
+
+	// either abs_path or hash should be NULL
+	if((hash && abs_path) || (!hash && !abs_path))
+		return -1;
+
+	if(hash)
+	{
+		sqlite3_prepare_v2(pDB, "UPDATE file SET tracked = 0 WHERE hash = ?1", -1, &query, NULL);
+		sqlite3_bind_text(query, 1, hash, -1, NULL);
+	}
+	else // if abs path
+	{
+		sqlite3_prepare_v2(pDB, "UPDATE file SET tracked = 0 WHERE path = ?1", -1, &query, NULL);
+		sqlite3_bind_text(query, 1, abs_path,-1,NULL);
+	}
 
 	if(sqlite3_step(query) != SQLITE_DONE)
 		ret = -1;

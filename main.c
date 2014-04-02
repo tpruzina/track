@@ -21,9 +21,9 @@ void init()
 
 	PRINT(ERROR,"TRACK_DATA_PATH = %s\n", data_path);
 
-	if(enforce_md5)
-		check_file_for_changes = check_file_for_changes_md5;
-	else
+//	if(enforce_md5)
+//		check_file_for_changes = check_file_for_changes_md5;
+//	else
 		check_file_for_changes = check_file_for_changes_mtime;
 
 	if(mkdir(data_path, 0777) != 0)
@@ -63,6 +63,8 @@ int parse_args(int argc, char **argv)
 			return TRACK_RM;
 		else if(strcmp("--snapshot", argv[1]) == 0)
 			return TRACK_SNAPSHOT;
+		else if(strcmp("--show", argv[1]) == 0)
+			return TRACK_SHOW;
 		//todo: else...
 	}
 	PRINT(DEBUG,"\n");
@@ -133,22 +135,15 @@ int main(int argc, char **argv)
 		case TRACK_RM:		rm(argc,argv);		break;
 		case TRACK_SNAPSHOT:	create_snapshot(NULL);	break;
 		case TRACK_VERIFY:	validate();		break;
-		case TRACK_SYNC:	sync_files();		break;
+		case TRACK_SHOW:	show();		break;
+
 	}
 
-//	time_t t= time(NULL);
-//	printf("%s\n",ctime(&t));
-
 	//add(argc,argv);
-
-//	track_file("common.h");
-//	track_file("common.c");
-
-//	create_snapshot("test2");
-	//create_snapshot(NULL);
+	remove_file("Makefile");
 
 //	list_file_versions("main.c");
-	//sync_files();
+	//show();
 
 	clean_up();
 	return 0;

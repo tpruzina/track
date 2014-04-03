@@ -1,3 +1,6 @@
+.track
+.project
+.cproject
 .git
 docs/database.dia\~
 database/sqlite_test

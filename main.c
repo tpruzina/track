@@ -141,8 +141,8 @@ int show(int argc, char **argv)
 					db_list_file_versions(tmp);
 				else
 					PRINT(NOTICE,"NOT TRACKED.\n");
+				free(tmp);
 			}
-			free(tmp);
 		}
 	}
 }

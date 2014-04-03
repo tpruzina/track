@@ -139,6 +139,8 @@ int show(int argc, char **argv)
 				PRINT(NOTICE,"%s:\n",abs_path);
 				if(db_query_file(abs_path) != -1)
 					db_list_file_versions(tmp);
+				else
+					PRINT(NOTICE,"NOT TRACKED.\n");
 			}
 			free(tmp);
 		}

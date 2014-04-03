@@ -120,6 +120,21 @@ int validate()
 	return  0;
 }
 
+int show(int argc, char **argv)
+{
+	if(argc <= 2)
+		return db_showchanged_files_md5();
+	else
+	{
+		char *tmp;
+		for(int i=2; i < argc; i++)
+		{
+			tmp = md5_sanitized_hash_of_string(realpath(argv[i],NULL));
+			db_list_file_versions(tmp);
+			free(tmp);
+		}
+	}
+}
 
 
 int main(int argc, char **argv)
@@ -135,12 +150,12 @@ int main(int argc, char **argv)
 		case TRACK_RM:		rm(argc,argv);		break;
 		case TRACK_SNAPSHOT:	create_snapshot(NULL);	break;
 		case TRACK_VERIFY:	validate();		break;
-		case TRACK_SHOW:	show();			break;
+		case TRACK_SHOW:	show(argc,argv);	break;
 
 	}
 
 	//add(argc,argv);
-	remove_file("Makefile");
+	//remove_file("Makefile");
 
 //	list_file_versions("main.c");
 	//show();

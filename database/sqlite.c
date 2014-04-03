@@ -145,13 +145,17 @@ int db_add_file_record(char *hash, char *md5, long mtime)
 
 	sqlite3_stmt *query;
 
-	sqlite3_prepare_v2(pDB,"INSERT INTO file_version (hash, mtime, md5) VALUE (?1, ?2, ?3)",-1,&query,NULL);
+	sqlite3_prepare_v2(pDB,"INSERT INTO file_version (hash, mtime, md5) VALUES (?1, ?2, ?3)",-1,&query,NULL);
 	sqlite3_bind_text(query,1,hash,-1,NULL);
 	sqlite3_bind_int(query,2,mtime);
 	sqlite3_bind_text(query,3,md5,-1,NULL);
 	
 	// todo: return code
-	sqlite3_step(query);
+	if(sqlite3_step(query) != SQLITE_DONE)
+		return -1;
+
+	if(query)
+		sqlite3_finalize(query);
 
 	return 0;
 }

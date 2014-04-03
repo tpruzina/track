@@ -67,11 +67,6 @@ int print_stats()
 	return 0;
 }
 
-int show()
-{
-	return db_showchanged_files_md5();
-}
-
 /* 
  * Add file into database and make backup
  * if file is already in database, then check for changes and commit them
@@ -180,6 +175,7 @@ int remove_file(const char *path)
 
 	db_set_file_tracking(abs_path,NULL,false);
 
+	//TODO: physically remove files
 	// if file is tracked, attempt to remove each version of the file
 	// from both backup folder and database
 

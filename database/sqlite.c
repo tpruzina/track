@@ -242,44 +242,31 @@ int db_add_file(char *path, char *sanitized_hash, char *md5, long mtime)
 	if(!pDB)
 		exit(EXIT_FAILURE);
 	int ret;
-//	char *qry= NULL;
-	sqlite3_stmt *query;
+	sqlite3_stmt *query_file;
 	
 	// insert record into file(path,hash)
-//	ret = asprintf(&qry, "insert into file (path, hash, tracked) values ('%s', '%s', %d);", path, sanitized_hash, 1);
-//	if(ret <= 0)
-//	{
-//		perror(NULL);
-//		exit(EXIT_FAILURE);
-//	}
-	sqlite3_prepare_v2(pDB,"INSERT INTO file (path, hash, tracked) VALUES (?1, ?2, 1)",-1,&query,NULL);
-	sqlite3_bind_text(query,1,path,-1,NULL);
-	sqlite3_bind_text(query,2,sanitized_hash,-1,NULL);
-	ret = sqlite3_step(query);
-//	free(qry);
+
+	sqlite3_prepare_v2(pDB,"INSERT INTO file (path, hash, tracked) VALUES (?1, ?2, 1)",-1,&query_file,NULL);
+	sqlite3_bind_text(query_file,1,path,-1,NULL);
+	sqlite3_bind_text(query_file,2,sanitized_hash,-1,NULL);
+	ret = sqlite3_step(query_file);
 	
 	if (ret != SQLITE_DONE)
 	{
 		printf("ERROR inserting data: %s\n", sqlite3_errmsg(pDB));
 		return -1;
 	}
+	else
+		sqlite3_finalize(query_file);
 
 	// insert record into file_version(hash, mtime, md5)
-//	qry=NULL;
-//	ret = asprintf(
-//		&qry,
-//		"insert into file_version (hash, mtime, md5) values ('%s', %ld, '%s')",
-//		sanitized_hash, mtime,md5
-//	);
-//	if(ret <= 0)
-//	{
-//		perror(NULL);
-//		exit(EXIT_FAILURE);
-//	}
+	sqlite3_stmt *query_fv;
+	sqlite3_prepare_v2(pDB, "INSERT INTO file_version (hash,mtime,md5) VALUES (?1,?2,?3)", -1, &query_fv, NULL);
+	sqlite3_bind_text(query_fv,1,sanitized_hash,-1,NULL);
+	sqlite3_bind_int(query_fv,2,mtime);
+	sqlite3_bind_text(query_fv,3,md5,-1,NULL);
 
-	sqlite3_prepare_v2(pDB, qry, strlen(qry), &query, NULL);
-	ret = sqlite3_step(query);
-	free(qry);	
+	ret = sqlite3_step(query_fv);
 
 	if (ret != SQLITE_DONE)
 	{
@@ -287,8 +274,8 @@ int db_add_file(char *path, char *sanitized_hash, char *md5, long mtime)
 		return -1;
 	}
 	
-	if (query != NULL)
-		sqlite3_finalize(query);
+	if (query_fv != NULL)
+		sqlite3_finalize(query_fv);
 
 	return 0;
 }

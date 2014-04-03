@@ -147,6 +147,13 @@ int show(int argc, char **argv)
 	}
 }
 
+void snapshot(int argc, char **argv)
+{
+	if(argc <= 1)
+		create_snapshot(NULL);
+	else
+		create_snapshot(argv[2]);
+}
 
 int main(int argc, char **argv)
 {
@@ -159,7 +166,7 @@ int main(int argc, char **argv)
 		case TRACK_HELP:	print_help();		break;
 		case TRACK_ADD:		add(argc,argv);		break;
 		case TRACK_RM:		rm(argc,argv);		break;
-		case TRACK_SNAPSHOT:	create_snapshot(NULL);	break;
+		case TRACK_SNAPSHOT:		snapshot(argc,argv);	break;
 		case TRACK_VERIFY:	validate();		break;
 		case TRACK_SHOW:	show(argc,argv);	break;
 

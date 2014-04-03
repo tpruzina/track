@@ -23,8 +23,13 @@ int (*check_file_for_changes)(char*, char*) = check_file_for_changes_mtime;
 int restore_snapshot(int id, char *path)
 {
 	//create directory
-
+	if(_mkdir(path) == -1)
+	{
+		// could not have created directory as specified
+		return -1;
+	}
 	//verify snapshot exist
+
 
 	//copy each file from snapshot onto new location (might require some path magic)
 	return 0;

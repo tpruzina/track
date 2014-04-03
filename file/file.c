@@ -50,5 +50,21 @@ int local_copy(const char *src, const char *dest)
 	return 0;
 }
 
+// recursive mkdir
+// path _must_ be writeable
+int _mkdir(char *path)
+{
+	if(!path)
+		return -1;
 
+	for(char *p = path +1; *p; p++)
+	if(*p == '/')
+	{
+		*p = '\0';
+		if(mkdir(path,S_IRWXU) == -1)
+			return -1;
+		*p = '/';
+	}
+	return 0;
+}
 

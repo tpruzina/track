@@ -148,20 +148,25 @@ int db_add_file_record(char *hash, char *md5, long mtime)
 {
 	if(!pDB)
 		exit(EXIT_FAILURE);
-	char *qry = NULL;
+//	char *qry = NULL;
 	sqlite3_stmt *query;
 
-	if(0 >= asprintf(
-		&qry,
-		"insert into file_version (hash, mtime, md5) values ('%s', %ld, '%s')",
-		hash, mtime, md5))
-	{
-		exit(EXIT_FAILURE);
-	}
+//	if(0 >= asprintf(
+//		&qry,
+//		"insert into file_version (hash, mtime, md5) values ('%s', %ld, '%s')",
+//		hash, mtime, md5))
+//	{
+//		exit(EXIT_FAILURE);
+//	}
+//
+	sqlite3_prepare_v2(pDB,"INSERT INTO file_version (hash, mtime, md5) VALUE (?1, ?2, ?3)",-1,&query,NULL);
+	sqlite3_bind_text(query,1,hash,-1,NULL);
+	sqlite3_bind_int(query,2,mtime);
+	sqlite3_bind_text(query,3,md5,-1,NULL);
 	
-	sqlite3_prepare_v2(pDB, qry, strlen(qry), &query, NULL);
+//	sqlite3_prepare_v2(pDB, qry, strlen(qry), &query, NULL);
 	sqlite3_step(query);
-	free(qry);
+//	free(qry);
 
 	return 0;
 }

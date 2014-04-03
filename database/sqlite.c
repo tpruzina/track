@@ -18,7 +18,6 @@
 #include "../common.h"
 
 sqlite3 *pDB = NULL;
-//sqlite3_stmt* query = NULL;
 
 void db_close(void)
 {
@@ -52,18 +51,15 @@ int db_open(const char *path)
 	else
 		atexit(db_close);	// close database on exit
 
-	// create database tables if they don't already exist
+	// set foreign keys on
 	sqlite3_exec(pDB,"PRAGMA foreign_keys = ON",0,0,0);
-
 	// lock database
 	sqlite3_exec(pDB, "PRAGMA locking_mode = EXCLUSIVE; BEGIN EXCLUSIVE;",0,0,0);
-	
+
+	// create database tables if they don't already exist
 	sqlite3_exec(pDB,"CREATE TABLE IF NOT EXISTS file (hash TEXT PRIMARY KEY, path TEXT, tracked INTEGER)",0,0,0);
-
 	sqlite3_exec(pDB,"CREATE TABLE IF NOT EXISTS file_version (id INTEGER PRIMARY KEY, mtime INTEGER,md5 TEXT, hash TEXT, FOREIGN KEY(hash) REFERENCES file(hash))",0,0,0);
-
 	sqlite3_exec(pDB,"CREATE TABLE IF NOT EXISTS snapshot (time INTEGER PRIMARY KEY, description TEXT)",0,0,0);
-
 	sqlite3_exec(pDB,"CREATE TABLE IF NOT EXISTS snapshot_file(fv_id INTEGER, s_time INTEGER, FOREIGN KEY(fv_id) REFERENCES file_version(id), FOREIGN KEY(s_time) REFERENCES snapshot(time))",0,0,0);
 
 	return 0;
@@ -75,7 +71,6 @@ int db_list_file_versions(char *hash)
 		exit(EXIT_FAILURE);
 
 	int count = 0;
-	
 	sqlite3_stmt *query;
 
 	sqlite3_prepare_v2(pDB, "select * from file_version fv where fv.hash = ?1", -1, &query, NULL);
@@ -84,8 +79,7 @@ int db_list_file_versions(char *hash)
 	while(sqlite3_step(query) == SQLITE_ROW)
 	{
 		count++;
-		PRINT(NOTICE,"%d|",count);
-		PRINT(NOTICE,"%s|",sqlite3_column_text(query,2));
+		PRINT(NOTICE,"%d|%s|",count, sqlite3_column_text(query,2));
 		print_time(sqlite3_column_int(query,1));
 	}
 
@@ -97,7 +91,7 @@ int db_list_file_versions(char *hash)
 
 char *db_get_newest_md5(char *hash)
 {
-	if(!hash)
+	if(!hash || !pDB)
 		return NULL;
 
 	sqlite3_stmt *query_md5;
@@ -148,25 +142,16 @@ int db_add_file_record(char *hash, char *md5, long mtime)
 {
 	if(!pDB)
 		exit(EXIT_FAILURE);
-//	char *qry = NULL;
+
 	sqlite3_stmt *query;
 
-//	if(0 >= asprintf(
-//		&qry,
-//		"insert into file_version (hash, mtime, md5) values ('%s', %ld, '%s')",
-//		hash, mtime, md5))
-//	{
-//		exit(EXIT_FAILURE);
-//	}
-//
 	sqlite3_prepare_v2(pDB,"INSERT INTO file_version (hash, mtime, md5) VALUE (?1, ?2, ?3)",-1,&query,NULL);
 	sqlite3_bind_text(query,1,hash,-1,NULL);
 	sqlite3_bind_int(query,2,mtime);
 	sqlite3_bind_text(query,3,md5,-1,NULL);
 	
-//	sqlite3_prepare_v2(pDB, qry, strlen(qry), &query, NULL);
+	// todo: return code
 	sqlite3_step(query);
-//	free(qry);
 
 	return 0;
 }
@@ -184,7 +169,7 @@ int db_create_snapshot_record(long t,char *desc)
 
 	if (sqlite3_step(insert_query) != SQLITE_DONE)
 	{
-		sqlite3_errmsg(pDB);
+		//sqlite3_errmsg(pDB);
 		PRINT(ERROR,"Error inserting into 'snapshot' db!\n");
 		exit(EXIT_FAILURE);
 	}
@@ -194,13 +179,13 @@ int db_create_snapshot_record(long t,char *desc)
 	return 0;
 }
 
+/*
+ * snapshot record is created, now link newest file_versions to snapshot
+ * for each file:
+ * 	insert into snapshot_file (fv_id, s_time) values (newest(file_version_id), t)
+ */
 int db_create_snapshot(long t)
 {
-	/*
-	 * snapshot record is created, now link newest file_versions to snapshot
-	 * for each file:
-	 * 	insert into snapshot_file (fv_id, s_time) values (newest(file_version_id), t)
-	 */
 
 	if(!pDB)
 		exit(EXIT_FAILURE);
@@ -210,10 +195,6 @@ int db_create_snapshot(long t)
 
 	//sqlite3_prepare_v2(pDB,"select fv.* from file_version fv INNER JOIN (SELECT hash, MAX(mtime) AS latestt FROM file_version GROUP BY hash) latest on fv.mtime = latest.latestt and fv.hash = latest.hash", -1, &file_query, NULL);
 	sqlite3_prepare_v2(pDB,"select fv.id from file_version fv INNER JOIN (SELECT hash, MAX(mtime) AS latestt FROM file_version GROUP BY hash) latest on fv.mtime = latest.latestt and fv.hash = latest.hash", -1, &file_query, NULL);
-
-//	sqlite3_bind_int(add_fv_id_into_snapshot_query,1,5);
-//	sqlite3_bind_int(add_fv_id_into_snapshot_query,2,5);
-//	sqlite3_step(add_fv_id_into_snapshot_query);
 
 	int ret;
 	while(SQLITE_ROW == (ret =sqlite3_step(file_query)))
@@ -231,8 +212,6 @@ int db_create_snapshot(long t)
 
 	if(file_query)
 		sqlite3_finalize(file_query);
-//	if(add_fv_id_into_snapshot_query)
-//	 	sqlite3_finalize(add_fv_id_into_snapshot_query);
 
 	return 0;
 }
@@ -245,7 +224,6 @@ int db_add_file(char *path, char *sanitized_hash, char *md5, long mtime)
 	sqlite3_stmt *query_file;
 	
 	// insert record into file(path,hash)
-
 	sqlite3_prepare_v2(pDB,"INSERT INTO file (path, hash, tracked) VALUES (?1, ?2, 1)",-1,&query_file,NULL);
 	sqlite3_bind_text(query_file,1,path,-1,NULL);
 	sqlite3_bind_text(query_file,2,sanitized_hash,-1,NULL);
@@ -351,6 +329,7 @@ int db_check_file_for_changes_mtime(char *hash, long mtime)
 		PRINT(DEBUG,"mtime differs\n");
 		ret = -1;
 	}
+
 	// cleanup
 	if(query)
 		sqlite3_finalize(query);

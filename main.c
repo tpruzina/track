@@ -122,6 +122,7 @@ int validate()
 
 int show(int argc, char **argv)
 {
+	char *abs_path;
 	if(argc <= 2)
 		return db_showchanged_files_md5();
 	else
@@ -129,8 +130,11 @@ int show(int argc, char **argv)
 		char *tmp;
 		for(int i=2; i < argc; i++)
 		{
-			tmp = md5_sanitized_hash_of_string(realpath(argv[i],NULL));
-			db_list_file_versions(tmp);
+			abs_path=realpath(argv[i],NULL);
+			tmp = md5_sanitized_hash_of_string(abs_path);
+			PRINT(NOTICE,"%s:\n",abs_path);
+			if(db_query_file(abs_path));
+				db_list_file_versions(tmp);
 			free(tmp);
 		}
 	}
@@ -153,12 +157,6 @@ int main(int argc, char **argv)
 		case TRACK_SHOW:	show(argc,argv);	break;
 
 	}
-
-	//add(argc,argv);
-	//remove_file("Makefile");
-
-//	list_file_versions("main.c");
-	//show();
 
 	clean_up();
 	return 0;

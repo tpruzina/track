@@ -178,7 +178,7 @@ int remove_file(const char *path)
 		goto cleanup;
 
 
-	db_untrack_file(abs_path,NULL);
+	db_set_file_tracking(abs_path,NULL,false);
 
 	// if file is tracked, attempt to remove each version of the file
 	// from both backup folder and database

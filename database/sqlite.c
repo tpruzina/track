@@ -144,28 +144,6 @@ int db_showchanged_files_md5()
 	return 0;
 }
 
-int db_set_file_tracking(char *hash, bool value)
-{
-	int ret = -1;
-
-	sqlite3_stmt *query;
-
-	int set = value ? 1 : 0;
-
-	sqlite3_prepare_v2(pDB, "UPDATE file SET tracked = ?1 WHERE hash = ?2 ",-1,&query,NULL);
-	sqlite3_bind_int(query,1,set);
-	sqlite3_bind_text(query,2,hash,-1,NULL);
-
-	if(sqlite3_step(query) == SQLITE_DONE)
-		ret = 0; // todo error checking
-	else
-		ret = -1;
-
-	sqlite3_finalize(query);
-
-	return ret;
-}
-
 int db_add_file_record(char *hash, char *md5, long mtime)
 {
 	if(!pDB)
@@ -386,8 +364,8 @@ int db_check_file_for_changes_mtime(char *hash, long mtime)
 	return ret;
 }
 
-// stops tracking file, but still retains data covered by snapshots
-int db_untrack_file(const char *abs_path, const char *hash)
+// stops tracking file, but still retains data
+int db_set_file_tracking(const char *abs_path, const char *hash, bool value)
 {
 	int ret;
 	sqlite3_stmt *query;
@@ -398,16 +376,51 @@ int db_untrack_file(const char *abs_path, const char *hash)
 
 	if(hash)
 	{
-		sqlite3_prepare_v2(pDB, "UPDATE file SET tracked = 0 WHERE hash = ?1", -1, &query, NULL);
+		sqlite3_prepare_v2(pDB, "UPDATE file SET tracked = ?1 WHERE hash = ?2", -1, &query, NULL);
+		sqlite3_bind_int(query, 1, (value ? 1:0));
+		sqlite3_bind_text(query, 2, hash, -1, NULL);
+	}
+	else // if abs path
+	{
+		sqlite3_prepare_v2(pDB, "UPDATE file SET tracked = ?1 WHERE path = ?2", -1, &query, NULL);
+		sqlite3_bind_int(query, 1, (value ? 1:0));
+		sqlite3_bind_text(query, 2, abs_path,-1,NULL);
+	}
+
+	if(sqlite3_step(query) != SQLITE_DONE)
+		ret = -1;
+	else
+		ret = 0;
+
+	if(query)
+		sqlite3_finalize(query);
+
+	return ret;
+}
+
+int db_check_file_tracking(const char *abs_path, const char *hash)
+{
+	int ret;
+	sqlite3_stmt *query;
+
+	// either abs_path or hash should be NULL
+	if((hash && abs_path) || (!hash && !abs_path))
+		return -1;
+
+	if(hash)
+	{
+		sqlite3_prepare_v2(pDB, "SELECT * FROM file WHERE hash = ?1 AND tracked = 1;", -1, &query, NULL);
 		sqlite3_bind_text(query, 1, hash, -1, NULL);
 	}
 	else // if abs path
 	{
-		sqlite3_prepare_v2(pDB, "UPDATE file SET tracked = 0 WHERE path = ?1", -1, &query, NULL);
+		sqlite3_prepare_v2(pDB, "SELECT * FROM file WHERE path = ?1 AND tracked = 1;", -1, &query, NULL);
 		sqlite3_bind_text(query, 1, abs_path,-1,NULL);
 	}
 
-	if(sqlite3_step(query) != SQLITE_DONE)
+	int sql_ret = sqlite3_step(query);
+
+	if(sql_ret != SQLITE_ROW || sql_ret != SQLITE_ROW)
 		ret = -1;
 	else
 		ret = 0;

@@ -2,6 +2,7 @@
 #define _SQLITE_HEADER
 
 #include <sqlite3.h>
+#include <stdbool.h>
 
 void db_close(void);
 void db_commit(void);
@@ -10,7 +11,9 @@ int db_open(const char *path);
 
 int db_add_file(char *path, char *sanitized_hash, char *md5, long mtime);
 int db_query_file(const char *path);
-int db_untrack_file(const char *abs_path, const char *hash);
+
+int db_set_file_tracking(const char *abs_path, const char *hash, bool value);
+int db_check_file_tracking(const char *abs_path, const char *hash);
 
 int db_check_file_for_changes_mtime(char *abs_path, long mtime);
 char *db_check_file_for_changes_md5(char *abs_path);

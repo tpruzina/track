@@ -131,10 +131,15 @@ int show(int argc, char **argv)
 		for(int i=2; i < argc; i++)
 		{
 			abs_path=realpath(argv[i],NULL);
-			tmp = md5_sanitized_hash_of_string(abs_path);
-			PRINT(NOTICE,"%s:\n",abs_path);
-			if(db_query_file(abs_path));
-				db_list_file_versions(tmp);
+			if(!abs_path)
+				PRINT(NOTICE,"%s unrecognized.\n",argv[i]);
+			else
+			{
+				tmp = md5_sanitized_hash_of_string(abs_path);
+				PRINT(NOTICE,"%s:\n",abs_path);
+				if(db_query_file(abs_path) != -1)
+					db_list_file_versions(tmp);
+			}
 			free(tmp);
 		}
 	}

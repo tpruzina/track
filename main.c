@@ -156,6 +156,21 @@ void snapshot(int argc, char **argv)
 		create_snapshot(argv[2]);
 }
 
+// exports [[ snapshot mtime (id) ]] onto [[ destination]]
+// if mtime is null, exports most current backup into destination
+// if destination is null, replaces files with their respective backups
+int export(int argc, char **argv)
+{
+	// these are to be parsed
+	int mtime = -1;
+	char *dest = NULL;
+
+//	for(int i=2; i < argc; i++)
+//	{
+//		if(stcmp)
+//	}
+}
+
 int main(int argc, char **argv)
 {
 	parse_env();

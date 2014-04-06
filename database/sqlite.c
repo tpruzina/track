@@ -459,6 +459,36 @@ unsigned char *db_query_backup_path_from_fv_id(int id)
 	return ret;
 }
 
+// copies files from tracked by snapshot into dest path
+// if dest_path is NULL, then overwrites originals with backed up copies\
+// this function more or less belongs to database/database.c, but
+// its in database/sqlite.c due to need for db queries
+// returns positive value (inc zero) if any files were recovered
+int db_export_snapshot(int snapshot_id, char *dest_path)
+{
+	sqlite3_stmt *query_fvs;
+	int ret;
+
+	// return 'id's of all file versions contained by snapshot with 'snapshot_id'
+	sqlite3_prepare_v2(pDB,"\
+	                   SELECT fv.id FROM file_version fv 		\
+	                   INNER JOIN 					\
+	                   (						\
+	                   	   SELECT fv_id FROM snapshot_file 	\
+	                   	   WHERE s_time = ?1 			\
+			   ) fvs					\
+	                   ON fvs.fv_id = fv.id",
+	                   -1, &query_fvs, NULL);
+	sqlite3_bind_int(query_fvs,1,snapshot_id);
+
+	while(sqlite3_step(query_fvs) == SQLITE_ROW)
+	{
+		ret ++;
+		export_fv(sqlite3_column_int(query_fvs,0), dest_path);
+	}
+	return ret;
+}
+
 
 #ifdef _TEST
 

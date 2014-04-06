@@ -1,6 +1,9 @@
 /******************************************************************************
  *
- * TODO: Project Title
+ * TRACK
+ * database/database.c
+ * This file should contain handling functions for work with database,
+ * and call sqlite3 functions from database/sqlite.c
  *
  * Author: Tomas Pruzina <pruzinat@gmail.com>
  *
@@ -20,18 +23,11 @@
 
 int (*check_file_for_changes)(char*, char*) = check_file_for_changes_mtime;
 
-int restore_snapshot(int id, char *path)
+int restore_snapshot(int id)
 {
-	//create directory
-	if(_mkdir(path) == -1)
-	{
-		// could not have created directory as specified
-		return -1;
-	}
-	//verify snapshot exist
-
-
-	//copy each file from snapshot onto new location (might require some path magic)
+	// works the same as export_snapshot, except it works "in place"
+	// e.g. no export directory prefix is used.
+	export_snapshot(id,"");
 	return 0;
 }
 
@@ -248,18 +244,23 @@ int export_fv(int id, char *dest_path)
 	return 0;
 }
 
-int export_snapshot(int id, char *dest_path)
+int export_snapshot(int snapshot_id, char *dest_path)
 {
+	int ret = -1;
 	// verify snapshot exist
 
-	// verify destination exists (or create directory)
+	// make sure that destination path exists (or create it)
+	// due to hackish nature of _mkdir, writeable path is required - make one
+	char *writeable_dest_path = malloc(strlen(dest_path));
+	strcpy(writeable_dest_path,dest_path);
+
+	_mkdir(writeable_dest_path);
 
 	// for each tracked file:
 	//	from snapshot_file, copy backed up file onto new location
-	while(0)
-	{
-		export_fv(id, dest_path);
-	}
-	return 0;
+	ret = db_export_snapshot(snapshot_id, dest_path);
+
+	free(writeable_dest_path);
+	return ret;
 }
 

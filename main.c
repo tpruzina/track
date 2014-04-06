@@ -73,6 +73,7 @@ int parse_args(int argc, char **argv)
 
 void print_help()
 {
+	// TODO: UPDATE!!!!
 	printf(
 		"TRACK\n"
 		"Usage:\n"
@@ -163,13 +164,13 @@ int main(int argc, char **argv)
 
 	switch(action)
 	{
-		case TRACK_HELP:	print_help();		break;
 		case TRACK_ADD:		add(argc,argv);		break;
 		case TRACK_RM:		rm(argc,argv);		break;
-		case TRACK_SNAPSHOT:		snapshot(argc,argv);	break;
+		case TRACK_SNAPSHOT:	snapshot(argc,argv);	break;
 		case TRACK_VERIFY:	validate();		break;
 		case TRACK_SHOW:	show(argc,argv);	break;
-
+		default:
+		case TRACK_HELP:	print_help();		break;
 	}
 
 	clean_up();

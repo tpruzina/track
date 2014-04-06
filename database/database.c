@@ -217,7 +217,51 @@ char *check_file_for_changes_md5(char *abs_path)
 }
 
 
+// assumes dest_path exists and user has permissions (see export_snapshot())
+int export_fv(int id, char *dest_path)
+{
+	// this aint gonna work
+	if(!dest_path || id <= 0)
+		return -1;
 
+	// full destination path of file
+	char *dest = NULL;
+	// full source path of file (backup path)
+	char *src = db_query_backup_path_from_fv_id(id);
+
+	// now forge dest path
+	// 1. get original path from db
+	char *orig_path = db_query_path_from_fv_id(id);
+	if(!orig_path)
+		return -1;
+
+	// dest = $dest_path/$(original path)
+	asprintf(&dest,"%s%s",dest_path, orig_path);
+
+	copy(src,dest);
+
+	// cleanup
+	free(dest);
+	free(src);
+	free(orig_path);
+
+	return 0;
+}
+
+int export_snapshot(int id, char *dest_path)
+{
+	// verify snapshot exist
+
+	// verify destination exists (or create directory)
+
+	// for each tracked file:
+	//	from snapshot_file, copy backed up file onto new location
+	while(0)
+	{
+		export_fv(id, dest_path);
+	}
+	return 0;
+}
 
 
 

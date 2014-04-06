@@ -408,6 +408,57 @@ int db_check_file_tracking(const char *abs_path, const char *hash)
 	return ret;
 }
 
+unsigned char *db_query_path_from_fv_id(int id)
+{
+	sqlite3_stmt *query;
+	unsigned char *ret = NULL;
+
+	sqlite3_prepare_v2(pDB,
+	                   "SELECT f.path FROM file f 				\
+	                   INNER JOIN						\
+	                   (SELECT hash FROM file_version WHERE id = ?1) fv	\
+	                   ON fv.hash == f.hash",
+	                   -1,&query, NULL);
+	sqlite3_bind_int(query,1,id);
+
+	if(sqlite3_step(query) != SQLITE_ROW)
+	{
+		//error, this should return exactly one record
+	}
+	else
+	{
+		// get filepath length (extra 1byte for terminating null character)
+		int bytes=sqlite3_column_bytes(query,0) +1;
+		// todo: checking
+		ret = malloc(bytes);
+		//copy query content into return buffer
+		strncpy(ret,sqlite3_column_text(query,0),bytes);
+
+		// todo this shouldn't be necessary
+		ret[bytes-1]= '\0';
+		//cleanup
+		sqlite3_finalize(query);
+	}
+	PRINT(DEBUG,"db_query_path_from_fv_id(%d) returns '%s'\n",id,ret);
+	return ret;
+}
+
+unsigned char *db_query_backup_path_from_fv_id(int id)
+{
+	sqlite3_stmt *query;
+	unsigned char *ret = NULL;
+
+	sqlite3_prepare_v2(pDB,"SELECT hash,md5 FROM file_version WHERE id = ?1",
+	                   -1,&query,NULL);
+	sqlite3_bind_int(query,1,id);
+
+	// forge path string via asprintf and return it
+	if(sqlite3_step(query) == SQLITE_ROW)
+		asprintf(&ret,"%s/%s/%s",data_path,sqlite3_column_text(query,0), sqlite3_column_text(query,1));
+	PRINT(DEBUG,"db_query_backup_path_from_fv_id(%d) returns '%s'\n",id,ret);
+	return ret;
+}
+
 
 #ifdef _TEST
 

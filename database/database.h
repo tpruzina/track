@@ -28,4 +28,7 @@ int list_file_versions(char *path);
 // print statistics (todo)
 int print_stats();
 
+int export_fv(int id, char *dest_path);
+int export_snapshot(int id, char *dest_path);
+
 #endif

@@ -27,4 +27,7 @@ int db_add_file_record(char *hash, char *md5, long mtime);
 
 int db_showchanged_files_md5();
 
+unsigned char *db_query_path_from_fv_id(int id);
+unsigned char *db_query_backup_path_from_fv_id(int id);
+
 #endif

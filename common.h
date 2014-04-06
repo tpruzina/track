@@ -70,4 +70,3 @@ char *generate_random_string(ssize_t length);
 void print_time(time_t time);
 
 #endif /* __COMMON_H__ */
-

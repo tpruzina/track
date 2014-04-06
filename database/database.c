@@ -263,5 +263,3 @@ int export_snapshot(int id, char *dest_path)
 	return 0;
 }
 
-
-

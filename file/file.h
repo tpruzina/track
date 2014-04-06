@@ -34,6 +34,3 @@ int copy(const char *src, const char *dest);
 int _mkdir(char *path);
 
 #endif /* __FILE_H__ */
-
-
-

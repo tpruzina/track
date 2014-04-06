@@ -1,12 +1,12 @@
 TODO (H - high, M - medium, L - low)
 
 H - implement basic functionality
-  - add
-  - commit
-  - sync
-  - untrack
-  - rm
+  - add - done for files only
+  - sync - TODO
+  - rm - doesn't yet phisically remove files, only stops tracking them
+  - snapshot
+  - GC - TODOE
 
-M - implement snapshots (tgz)
+M - implement export of snapshots into tar format (tgz)
 
-L - protect against possible sql injections via crafted files
+L - protect against possible sql injections via crafted files - DONE

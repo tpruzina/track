@@ -21,8 +21,6 @@
 #include "database.h"
 #include "sqlite.h"
 
-int (*check_file_for_changes)(char*, char*) = check_file_for_changes_mtime;
-
 int restore_snapshot(int id)
 {
 	// works the same as export_snapshot, except it works "in place"
@@ -102,7 +100,7 @@ int track_file(const char *path)
 	{
 		PRINT(DEBUG, "found %s in database\n", abs_path);
 		//if((md5 = check_file_for_changes_md5(abs_path)) != NULL)
-		if(check_file_for_changes(abs_path, hash) != 0)
+		if(check_file_for_changes(abs_path, opts.md5_enforce) != 0)
 		{
 			// file has changed - add new version to database!
 			PRINT(DEBUG,"%s has changed\n",abs_path);
@@ -181,37 +179,26 @@ cleanup:
 }
 
 // cheap check
-int check_file_for_changes_mtime(char *abs_path, char *hash)
+int check_file_for_changes(char *abs_path, bool enforce_md5)
 {
 	int ret;
+	char *hash = NULL;
+
+
 	struct stat st;
 	if(stat(abs_path, &st) == -1)
 	{
 		perror(NULL);
 		exit(EXIT_FAILURE);
 	}
-	
-	if(hash == NULL)
-	{
-		hash = md5_sanitized_hash_of_string(abs_path);
-		ret = db_check_file_for_changes_mtime(hash, st.st_mtime);
-		free(hash);
-	}
-	else
-		ret = db_check_file_for_changes_mtime(hash, st.st_mtime);
+
+
+	hash = md5_sanitized_hash_of_string(abs_path);
+	ret = db_check_file_for_changes_mtime(hash, st.st_mtime);
+	free(hash);
 
 	return ret;
 }
-
-// hard check
-// computes md5 hash
-// returns NULL when it's the same as last entry in db
-// returns new md5 else
-char *check_file_for_changes_md5(char *abs_path)
-{
-	return db_check_file_for_changes_md5(abs_path);
-}
-
 
 // assumes dest_path exists and user has permissions (see export_snapshot())
 int export_fv(int id, char *dest_path)

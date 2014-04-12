@@ -45,6 +45,14 @@ extern char *data_path;
 extern char *enforce_md5;
 extern char db_path[1024];
 
+struct options
+{
+	int op;
+	bool md5_enforce;
+	char **next_arg;
+
+} opts;
+
 // PRINT MACRO
 #define DEBUG 0
 #define NOTICE 1
@@ -59,6 +67,8 @@ enum actions
 {
 	TRACK_HELP,
 	TRACK_ADD,
+	TRACK_EXPORT,
+	TRACK_DIFF,
 	TRACK_SHOW,
 	TRACK_RM,
 	TRACK_SNAPSHOT,

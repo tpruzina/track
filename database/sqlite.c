@@ -446,7 +446,7 @@ unsigned char *db_query_path_from_fv_id(int id)
 unsigned char *db_query_backup_path_from_fv_id(int id)
 {
 	sqlite3_stmt *query;
-	unsigned char *ret = NULL;
+	char *ret = NULL;
 
 	sqlite3_prepare_v2(pDB,"SELECT hash,md5 FROM file_version WHERE id = ?1",
 	                   -1,&query,NULL);
@@ -456,18 +456,18 @@ unsigned char *db_query_backup_path_from_fv_id(int id)
 	if(sqlite3_step(query) == SQLITE_ROW)
 		asprintf(&ret,"%s/%s/%s",data_path,sqlite3_column_text(query,0), sqlite3_column_text(query,1));
 	PRINT(DEBUG,"db_query_backup_path_from_fv_id(%d) returns '%s'\n",id,ret);
-	return ret;
+	return (unsigned char *)ret;
 }
 
 // copies files from tracked by snapshot into dest path
-// if dest_path is NULL, then overwrites originals with backed up copies\
+// if dest_path is NULL, then overwrites originals with backed up copies
 // this function more or less belongs to database/database.c, but
 // its in database/sqlite.c due to need for db queries
 // returns positive value (inc zero) if any files were recovered
 int db_export_snapshot(int snapshot_id, char *dest_path)
 {
 	sqlite3_stmt *query_fvs;
-	int ret;
+	int ret=-1;
 
 	// return 'id's of all file versions contained by snapshot with 'snapshot_id'
 	sqlite3_prepare_v2(pDB,"\

@@ -54,7 +54,7 @@ int local_copy(const char *src, const char *dest)
 // robust copy, creates directories as needed
 int copy(const char *src, const char *dest)
 {
-	char *delim = dest;
+	const char *delim = dest;
 	char *dir_path = NULL;
 
 	//points delim at the end of the string

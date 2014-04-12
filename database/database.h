@@ -4,8 +4,6 @@
 #include "../common.h"
 #include "sqlite.h"
 
-// extern pointer to hard/soft (mtime vs md5) compare function
-extern int (*check_file_for_changes)(char*, char*);
 
 // given id, restores full snapshot into given directory
 int restore_snapshot(int id);
@@ -19,8 +17,8 @@ int remove_file(const char *path);
 int create_snapshot(char *desc);
 
 // compare file with newest database record
-int check_file_for_changes_mtime(char *abs_path, char *hash);
-char *check_file_for_changes_md5(char *abs_path);
+int check_file_for_changes(char *abs_path, bool enforce_md5);
+
 
 // list all backed up 
 int list_file_versions(char *path);

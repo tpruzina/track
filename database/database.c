@@ -178,25 +178,47 @@ cleanup:
 	return 0;
 }
 
-// cheap check
+// compares current file revision at abs_path with latest tracked file
+// @enforce_md5, if true, compares by md5, if false, compares by mtime (cheap)
 int check_file_for_changes(char *abs_path, bool enforce_md5)
 {
 	int ret;
-	char *hash = NULL;
+	char *hash = md5_sanitized_hash_of_string(abs_path);
+	if(!hash)
+		ret = -1;
 
+//	int db_file_get_newest_mtime(char *hash);
+//	char *db_file_get_newest_md5(char *hash);
 
-	struct stat st;
-	if(stat(abs_path, &st) == -1)
+	if(enforce_md5)
 	{
-		perror(NULL);
-		exit(EXIT_FAILURE);
+		char *md5_old = db_file_get_newest_md5(hash);
+		char *md5_new = md5_sanitized_hash_of_file(abs_path);
+
+		if(!strcmp(md5_new,md5_old))
+			ret = 0;
+		else
+			ret = -1;
+
+		free(md5_old);
+		free(md5_new);
+	}
+	else
+	{
+		struct stat st;
+		if(stat(abs_path, &st) == -1)
+			ret = -1;
+		else
+		{
+			int mtime_new = db_file_get_newest_mtime(hash);
+			if(mtime_new == st.st_mtime)
+				ret = 0;
+			else
+				ret = -1;
+		}
 	}
 
-
-	hash = md5_sanitized_hash_of_string(abs_path);
-	ret = db_check_file_for_changes_mtime(hash, st.st_mtime);
 	free(hash);
-
 	return ret;
 }
 
@@ -219,10 +241,12 @@ int export_fv(int id, char *dest_path)
 		return -1;
 
 	// dest = $dest_path/$(original path)
-	asprintf(&dest,"%s%s",dest_path, orig_path);
+	if(0 > asprintf(&dest,"%s%s",dest_path, orig_path))
+		goto cleanup;
 
 	copy(src,dest);
 
+cleanup:
 	// cleanup
 	free(dest);
 	free(src);

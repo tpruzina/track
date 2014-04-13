@@ -280,64 +280,38 @@ int db_query_file(const char *abs_path)
 		return -1;
 }
 
-// compares latest tracked revision against current one (md5)
-// contraintuively, this will return (char*) md5 of file
-char *db_check_file_for_changes_md5(char *abs_path)
+int db_file_get_newest_mtime(char *hash)
 {
+	int ret=-1;
 	sqlite3_stmt *query;
-	sqlite3_prepare_v2(pDB, "select * from file where path = ?1;", -1, &query, NULL);
 
-	sqlite3_bind_text(query, 1, abs_path, -1, NULL);
+	sqlite3_prepare_v2(pDB, "select mtime from file_version where hash = ?1 order by mtime;", -1, &query, NULL);
+	sqlite3_bind_text(query, 1, hash, -1, NULL);
 
 	if(sqlite3_step(query) == SQLITE_ROW)
 	{
-		const unsigned char *hash = sqlite3_column_text(query, 1);
-		sqlite3_prepare_v2(pDB, "select md5 from file_version where hash = ?1 order by mtime;", -1, &query, NULL);
-		sqlite3_bind_text(query,1,(char *)hash, -1, NULL);
-		if(sqlite3_step(query) == SQLITE_ROW)
-		{
-			const unsigned char *md5_old = sqlite3_column_text(query,0);
-			char *md5_new = md5_sanitized_hash_of_file(abs_path);
-
-			if(strncmp((char *)md5_old, md5_new, MD5_DIGEST_LENGTH) == 0)
-				return NULL;
-			else
-				return md5_new;
-		}
-			else exit(EXIT_FAILURE);
+		ret = sqlite3_column_int(query,0);
+		sqlite3_finalize(query);
 	}
-	else
-	{
-		// this shouldnt happen under normal circumstances since we
-		// already checked that file is tracked
-		exit(EXIT_FAILURE);
-	}
-
+	return ret;
 }
 
-int db_check_file_for_changes_mtime(char *hash, long mtime)
+char *db_file_get_newest_md5(char *hash)
 {
-	int ret;
 	sqlite3_stmt *query;
-	sqlite3_prepare_v2(pDB, "SELECT * from file_version where hash == ?1 AND mtime == ?2", -1, &query, NULL);
-	sqlite3_bind_text(query,1,hash,-1,NULL);
-	sqlite3_bind_int(query, 2, mtime);
+	char *ret = NULL;
+
+	sqlite3_prepare_v2(pDB, "select md5 from file_version where hash = ?1 order by mtime;", -1, &query, NULL);
+	sqlite3_bind_text(query, 1, hash, -1, NULL);
 
 	if(sqlite3_step(query) == SQLITE_ROW)
 	{
-		PRINT(DEBUG,"mtime compares the same\n");
-		ret = 0;
-	}
-	else
-	{
-		PRINT(DEBUG,"mtime differs\n");
-		ret = -1;
-	}
-
-	// cleanup
-	if(query)
+		unsigned const char *new_md5 = sqlite3_column_text(query, 0);
+		ret = malloc(sqlite3_column_bytes(query,0));
+		if(ret)
+			strcpy(ret,(char *)new_md5);
 		sqlite3_finalize(query);
-	
+	}
 	return ret;
 }
 
@@ -408,10 +382,10 @@ int db_check_file_tracking(const char *abs_path, const char *hash)
 	return ret;
 }
 
-unsigned char *db_query_path_from_fv_id(int id)
+char *db_query_path_from_fv_id(int id)
 {
 	sqlite3_stmt *query;
-	unsigned char *ret = NULL;
+	char *ret = NULL;
 
 	sqlite3_prepare_v2(pDB,
 	                   "SELECT f.path FROM file f 				\
@@ -432,7 +406,7 @@ unsigned char *db_query_path_from_fv_id(int id)
 		// todo: checking
 		ret = malloc(bytes);
 		//copy query content into return buffer
-		strncpy(ret,sqlite3_column_text(query,0),bytes);
+		strncpy(ret,((char *)sqlite3_column_text(query,0)),bytes);
 
 		// todo this shouldn't be necessary
 		ret[bytes-1]= '\0';
@@ -443,7 +417,7 @@ unsigned char *db_query_path_from_fv_id(int id)
 	return ret;
 }
 
-unsigned char *db_query_backup_path_from_fv_id(int id)
+char *db_query_backup_path_from_fv_id(int id)
 {
 	sqlite3_stmt *query;
 	char *ret = NULL;
@@ -454,9 +428,13 @@ unsigned char *db_query_backup_path_from_fv_id(int id)
 
 	// forge path string via asprintf and return it
 	if(sqlite3_step(query) == SQLITE_ROW)
-		asprintf(&ret,"%s/%s/%s",data_path,sqlite3_column_text(query,0), sqlite3_column_text(query,1));
+		if(0 > asprintf(&ret,"%s/%s/%s",
+		                data_path,sqlite3_column_text(query,0),
+		                sqlite3_column_text(query,1))
+		)
+		return NULL;	// todo, better error handling
 	PRINT(DEBUG,"db_query_backup_path_from_fv_id(%d) returns '%s'\n",id,ret);
-	return (unsigned char *)ret;
+	return ret;
 }
 
 // copies files from tracked by snapshot into dest path

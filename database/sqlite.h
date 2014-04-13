@@ -15,8 +15,11 @@ int db_query_file(const char *path);
 int db_set_file_tracking(const char *abs_path, const char *hash, bool value);
 int db_check_file_tracking(const char *abs_path, const char *hash);
 
-int db_check_file_for_changes_mtime(char *abs_path, long mtime);
-char *db_check_file_for_changes_md5(char *abs_path);
+//int db_check_file_for_changes_mtime(char *hash, char *path,long mtime);
+//int db_check_file_for_changes_md5(char *hash, char *path, char **md5);
+
+int db_file_get_newest_mtime(char *hash);
+char *db_file_get_newest_md5(char *hash);
 
 int db_create_snapshot_record(long t, char *desc);
 int db_create_snapshot(long t);
@@ -27,8 +30,8 @@ int db_add_file_record(char *hash, char *md5, long mtime);
 
 int db_showchanged_files_md5();
 
-unsigned char *db_query_path_from_fv_id(int id);
-unsigned char *db_query_backup_path_from_fv_id(int id);
+char *db_query_path_from_fv_id(int id);
+char *db_query_backup_path_from_fv_id(int id);
 
 int db_export_snapshot(int snapshot_id, char *dest_path);
 

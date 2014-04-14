@@ -1,6 +1,6 @@
 LDFLAGS=-lssl -lcrypto -lsqlite3
 CFLAGS=-O2 -D_GNU_SOURCE -std=gnu99 
-DEBUGFLAGS=-Og -D_DEBUG -Wall -Wextra -g3 -ggdb3
+DEBUGFLAGS=-std=gnu99 -Og -D_GNU_SOURCE -D_DEBUG -Wall -Wextra -g3 -ggdb3
 
 SOURCES=common.c main.c track.c database/sqlite.c md5/md5.c file/file.c
 
@@ -11,7 +11,7 @@ main: $(SOURCES)
 	$(CC) $(CFLAGS) $(LDFLAGS) $(SOURCES) -o track
 
 debug: $(SOURCES)
-	$(CC) $(CFLAGS) $(DEBUGFLAGS) $(LDFLAGS) $(SOURCES) -o track
+	$(CC) $(DEBUGFLAGS) $(LDFLAGS) $(SOURCES) -o track
 
 clean:
 	rm -f track

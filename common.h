@@ -53,6 +53,7 @@ struct options
 
 } opts;
 
+
 // PRINT MACRO
 #define DEBUG 0
 #define NOTICE 1

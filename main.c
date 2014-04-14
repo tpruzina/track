@@ -5,8 +5,6 @@ void init()
 {
 	PRINT(DEBUG,"=====INIT====\n");
 
-	log_level = DEBUG;
-
 	if(!data_path)
 	{
 		data_path = malloc(1024);
@@ -57,6 +55,10 @@ int parse_args(int argc, char **argv)
 	{
 		if(parse("--md5",argv[i]))
 			opts.md5_enforce=true;
+		else if(parse("-v",argv[i]))
+			log_level = DEBUG;
+		else if(parse("-q",argv[i]))
+			log_level = ERROR;
 		else if(parse("--data-path",argv[i]))
 		{
 			data_path=argv[++i];

@@ -18,6 +18,8 @@ char db_path[1024];
 
 int log_level;
 
+struct options opts = { TRACK_HELP, false, NULL };
+
 // random string generator
 char *generate_random_string(ssize_t length)
 {

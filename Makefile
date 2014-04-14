@@ -2,7 +2,7 @@ LDFLAGS=-lssl -lcrypto -lsqlite3
 CFLAGS=-O2 -D_GNU_SOURCE -std=gnu99 
 DEBUGFLAGS=-Og -D_DEBUG -Wall -Wextra -g3 -ggdb3
 
-SOURCES=common.c main.c database/sqlite.c database/database.c md5/md5.c file/file.c
+SOURCES=common.c main.c track.c database/sqlite.c md5/md5.c file/file.c
 
 ALL: all
 all: main

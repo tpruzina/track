@@ -99,6 +99,12 @@ int parse_args(int argc, char **argv)
 			opts.op=TRACK_VERIFY;
 			break;
 		}
+		else if(parse("--show", argv[i]) ||
+			parse("show",argv[i]))
+		{
+			opts.op=TRACK_SHOW;
+			break;
+		}
 		else if(parse("--help",argv[i]) ||
 			parse("help",argv[i]) ||
 			parse("-?",argv[i]))
@@ -186,6 +192,8 @@ void show()
 					PRINT(NOTICE,"NOT TRACKED.\n");
 				free(tmp);
 			}
+			putchar('\n');
+			opts.next_arg++;
 		}
 	}
 }

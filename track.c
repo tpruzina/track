@@ -18,8 +18,8 @@
 #include <time.h>
 #include <stdbool.h>
 
-#include "database.h"
-#include "sqlite.h"
+#include "track.h"
+#include "database/sqlite.h"
 
 int restore_snapshot(int id)
 {

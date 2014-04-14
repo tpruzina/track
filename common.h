@@ -38,7 +38,7 @@
 #include <stdbool.h>
 
 #include "md5/md5.h"
-#include "database/database.h"
+#include "track.h"
 #include "file/file.h"
 
 extern char *data_path;

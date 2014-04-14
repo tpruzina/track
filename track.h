@@ -1,8 +1,8 @@
 #ifndef _DB_HEADER
 #define _DB_HEADER
 
-#include "../common.h"
-#include "sqlite.h"
+#include "common.h"
+#include "database/sqlite.h"
 
 
 // given id, restores full snapshot into given directory

@@ -1,12 +1,12 @@
 TODO (H - high, M - medium, L - low)
 
-H - implement basic functionality
-  - add - done for files only
-  - sync - TODO
+H
+  - make separate init command for data(path,base) initialization, don't do it
+    automatically
   - rm - doesn't yet phisically remove files, only stops tracking them
   - snapshot
-  - GC - TODOE
+  - GC - TODO
 
-M - implement export of snapshots into tar format (tgz)
+M - implement export of snapshots into tar format (tgz), or via pipe
 
 L - protect against possible sql injections via crafted files - DONE

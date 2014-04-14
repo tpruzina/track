@@ -3,9 +3,7 @@
 
 void init()
 {
-	PRINT(DEBUG,"=====INIT====\n");
-
-#ifdef DEBUG
+#ifdef _DEBUG
 	log_level = DEBUG;
 #else
 	log_level = NOTICE;
@@ -23,7 +21,7 @@ void init()
 	else
 		data_path = realpath(data_path, NULL);
 
-	PRINT(ERROR,"TRACK_DATA_PATH = %s\n", data_path);
+	PRINT(DEBUG,"TRACK_DATA_PATH = %s\n", data_path);
 
 	if(mkdir(data_path, 0777) != 0)
 	{
@@ -35,7 +33,7 @@ void init()
 		}
 	}
 	else
-		printf("Creating %s!\n",data_path);
+		PRINT(NOTICE,"Creating %s!\n",data_path);
 
 	// open database (create new one if needed)
 	snprintf(db_path, sizeof(db_path), "%s/db.sql", data_path);
@@ -54,8 +52,6 @@ bool parse(char *s1, char *s2)
 
 int parse_args(int argc, char **argv)
 {
-	PRINT(DEBUG,"=====ARG PARSE====\n");
-
 	int i=1;
 	for( ; i < argc; i++)
 	{
@@ -121,8 +117,6 @@ int parse_args(int argc, char **argv)
 	}
 	opts.next_arg = &(argv[++i]);
 
-
-	PRINT(DEBUG,"\n");
 	return 0;
 }
 
@@ -142,8 +136,8 @@ void print_help()
 	"actions may be prefixed with --\n"
 	"\thelp\n"
 	"\t\tprints this. (default)\n\n"
-	"\tadd <<file..>>\n"
-	"\trm <<file..>>\n"
+	"\tadd <file> [[file..]]\n"
+	"\trm <file> [[file..]]\n"
 	"\t\tadds/removes files from [[action args]] into database and backs them up\n\n"
 	"\tshow [[file...]]\n"
 	"\t\tno args - prints all tracked files from database with their latest versions\n"

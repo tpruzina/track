@@ -1,4 +1,3 @@
-#undef _TEST
 #include "common.h"
 
 void init()

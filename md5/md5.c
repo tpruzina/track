@@ -75,13 +75,3 @@ char *md5_sanitized_hash_of_string(char *string)
 	return sanitized_hash;
 }
 
-#ifdef _TEST
-
-int main()
-{
-	printf("%s\n",md5_sanitized_hash_of_file("md5.c"));
-	printf("%s\n",md5_sanitized_hash_of_string("md5.c"));
-	return 0;
-}
-
-#endif

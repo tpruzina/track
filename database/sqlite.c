@@ -469,13 +469,3 @@ int db_export_snapshot(int snapshot_id, char *dest_path)
 	return ret;
 }
 
-
-#ifdef _TEST
-
-int main(void)
-{
-	db_open("./test.sqldb");
-	return 0;
-}
-
-#endif

@@ -70,6 +70,18 @@ int track_file(const char *path)
 {
 	// get canonical (full) path to file
 	char *abs_path = realpath(path, NULL);
+	// if anything went wrong, yield error and exit function
+	if(!abs_path && (errno == EACCES || errno == ENOENT || errno == EEXIST))
+	{
+		fflush(stdout);
+		fprintf(stderr,"%s: %s\n",
+		        path,
+		        (errno == EACCES) ? "no read permissions." :
+		        (errno == ENOENT) ? "doesn't exist." :
+		        "unknown error."
+		);
+		return -1;
+	}
 
 	// precalculate hash of file's canonical path (primary key)
 	char *hash = md5_sanitized_hash_of_string(abs_path);

@@ -130,11 +130,17 @@ void print_help()
 {
 	// TODO: UPDATE!!!!
 	printf(
-		"TRACK\n"
-		"Usage:\n"
-		"track --add\t\t tracks new file\n"
-		"track --rm\t\t removes all backups of a file\n"
-		"track --snapshot <mtime>\t\t creates snapshot of files [FILE]\n"
+	"track - simple tracking and backup tool\n"
+	"track [[global args]] action [[action args]]\n"
+	"\n"
+	"global args:\n"
+	"--md5\t\tenforce chocking md5 sums when manipulating files.\n"
+	"--data-path\t\t path to backups, otherwise current dir is assumed (.track)\n"
+	"-q\t\t be quiet\n"
+	"-v\t\t be verbose (debug)\n\n"
+	"actions: help,add,rm,show,diff,snapshot,export,verify\n"
+	""
+	""
 	);
 }
 

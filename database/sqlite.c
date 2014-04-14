@@ -428,11 +428,13 @@ char *db_query_backup_path_from_fv_id(int id)
 
 	// forge path string via asprintf and return it
 	if(sqlite3_step(query) == SQLITE_ROW)
+	{
 		if(0 > asprintf(&ret,"%s/%s/%s",
 		                data_path,sqlite3_column_text(query,0),
 		                sqlite3_column_text(query,1))
 		)
 		return NULL;	// todo, better error handling
+	}
 	PRINT(DEBUG,"db_query_backup_path_from_fv_id(%d) returns '%s'\n",id,ret);
 	return ret;
 }

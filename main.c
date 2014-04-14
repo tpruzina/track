@@ -5,6 +5,12 @@ void init()
 {
 	PRINT(DEBUG,"=====INIT====\n");
 
+#ifdef DEBUG
+	log_level = DEBUG;
+#else
+	log_level = NOTICE;
+#endif
+
 	if(!data_path)
 	{
 		data_path = malloc(1024);

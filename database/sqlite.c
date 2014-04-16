@@ -62,7 +62,7 @@ int db_open(const char *path)
 	sqlite3_exec(pDB,"CREATE TABLE IF NOT EXISTS snapshot (time INTEGER PRIMARY KEY, description TEXT)",0,0,0);
 	sqlite3_exec(pDB,"CREATE TABLE IF NOT EXISTS snapshot_file(fv_id INTEGER, s_time INTEGER, FOREIGN KEY(fv_id) REFERENCES file_version(id), FOREIGN KEY(s_time) REFERENCES snapshot(time))",0,0,0);
 
-	return 0;
+	return EOK;
 }
 
 int db_list_file_versions(char *hash)
@@ -135,7 +135,7 @@ int db_showchanged_files_md5()
 	if(query_files)
 		sqlite3_finalize(query_files);
 
-	return 0;
+	return EOK;
 }
 
 int db_add_file_record(char *hash, char *md5, long mtime)
@@ -152,12 +152,12 @@ int db_add_file_record(char *hash, char *md5, long mtime)
 	
 	// todo: return code
 	if(sqlite3_step(query) != SQLITE_DONE)
-		return -1;
+		return EERR;
 
 	if(query)
 		sqlite3_finalize(query);
 
-	return 0;
+	return EOK;
 }
 
 int db_create_snapshot_record(long t,char *desc)
@@ -180,7 +180,8 @@ int db_create_snapshot_record(long t,char *desc)
 
 	if(insert_query)
 		sqlite3_finalize(insert_query);
-	return 0;
+	
+	return EOK;
 }
 
 /*
@@ -217,7 +218,7 @@ int db_create_snapshot(long t)
 	if(file_query)
 		sqlite3_finalize(file_query);
 
-	return 0;
+	return EOK;
 }
 
 int db_add_file(char *path, char *sanitized_hash, char *md5, long mtime)
@@ -236,7 +237,7 @@ int db_add_file(char *path, char *sanitized_hash, char *md5, long mtime)
 	if (ret != SQLITE_DONE)
 	{
 		printf("ERROR inserting data: %s\n", sqlite3_errmsg(pDB));
-		return -1;
+		return EERR;
 	}
 	else
 		sqlite3_finalize(query_file);
@@ -253,13 +254,13 @@ int db_add_file(char *path, char *sanitized_hash, char *md5, long mtime)
 	if (ret != SQLITE_DONE)
 	{
 		printf("ERROR inserting data: %s\n", sqlite3_errmsg(pDB));
-		return -1;
+		return EERR;
 	}
 	
 	if (query_fv != NULL)
 		sqlite3_finalize(query_fv);
 
-	return 0;
+	return EOK;
 }
 
 // checks wheather file is tracked
@@ -275,9 +276,9 @@ int db_query_file(const char *abs_path)
 		sqlite3_finalize(query);
 
 	if(ret == SQLITE_ROW)
-		return 0;
+		return EOK;
 	else
-		return -1;
+		return EERR;
 }
 
 int db_file_get_newest_mtime(char *hash)
@@ -323,7 +324,7 @@ int db_set_file_tracking(const char *abs_path, const char *hash, bool value)
 
 	// either abs_path or hash should be NULL
 	if((hash && abs_path) || (!hash && !abs_path))
-		return -1;
+		return EERR;
 
 	if(hash)
 	{
@@ -356,7 +357,7 @@ int db_check_file_tracking(const char *abs_path, const char *hash)
 
 	// either abs_path or hash should be NULL
 	if((hash && abs_path) || (!hash && !abs_path))
-		return -1;
+		return EERR;
 
 	if(hash)
 	{

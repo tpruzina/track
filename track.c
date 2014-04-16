@@ -26,7 +26,7 @@ int restore_snapshot(int id)
 	// works the same as export_snapshot, except it works "in place"
 	// e.g. no export directory prefix is used.
 	export_snapshot(id,"");
-	return 0;
+	return EOK;
 }
 
 
@@ -40,7 +40,7 @@ int create_snapshot(char *desc)
 	db_create_snapshot_record(t,desc);
 	db_create_snapshot(t);
 
-	return 0;
+	return EOK;
 }
 
 int list_file_versions(char *path)
@@ -58,7 +58,7 @@ int list_file_versions(char *path)
 
 int print_stats()
 {
-	return 0;
+	return EOK;
 }
 
 /* 
@@ -80,7 +80,7 @@ int track_file(const char *path)
 		        (errno == ENOENT) ? "doesn't exist." :
 		        "unknown error."
 		);
-		return -1;
+		return EERR;
 	}
 
 	// precalculate hash of file's canonical path (primary key)
@@ -103,7 +103,7 @@ int track_file(const char *path)
 		if(!S_ISREG(st.st_mode))
 		{
 			PRINT(DEBUG,"%s isn't a regular file!\n",abs_path);
-			return 0;
+			return EOK;
 		}
 	}
 
@@ -164,7 +164,7 @@ int track_file(const char *path)
 	if(md5)
 		free(md5);
 
-	return 0;
+	return EOK;
 }
 
 int remove_file(const char *path)
@@ -187,7 +187,7 @@ int remove_file(const char *path)
 
 cleanup:
 	free(abs_path);
-	return 0;
+	return EOK;
 }
 
 // compares current file revision at abs_path with latest tracked file
@@ -239,7 +239,7 @@ int export_fv(int id, char *dest_path)
 {
 	// this aint gonna work
 	if(!dest_path || id <= 0)
-		return -1;
+		return EERR;
 
 	// full destination path of file
 	char *dest = NULL;
@@ -250,7 +250,7 @@ int export_fv(int id, char *dest_path)
 	// 1. get original path from db
 	char *orig_path = db_query_path_from_fv_id(id);
 	if(!orig_path)
-		return -1;
+		return EERR;
 
 	// dest = $dest_path/$(original path)
 	if(0 > asprintf(&dest,"%s%s",dest_path, orig_path))
@@ -264,7 +264,7 @@ cleanup:
 	free(src);
 	free(orig_path);
 
-	return 0;
+	return EOK;
 }
 
 int export_snapshot(int snapshot_id, char *dest_path)

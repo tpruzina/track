@@ -60,6 +60,9 @@ struct options
 #define MESSAGE 2
 #define ERROR 3
 
+#define EOK 0
+#define EERR -1
+
 extern int log_level;
 #define PRINT(x, ...) do { if(log_level <= (x)) fprintf(stdout, __VA_ARGS__ ); } while ( 0 )
 

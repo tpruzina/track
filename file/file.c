@@ -48,7 +48,7 @@ int local_copy(const char *src, const char *dest)
 	munmap(dest_addr, ss.st_size);
 	munmap(src_addr, ss.st_size);
 	
-	return 0;
+	return EOK;
 }
 
 // robust copy, creates directories as needed
@@ -72,7 +72,7 @@ int copy(const char *src, const char *dest)
 
 	// directories are created, now copy files
 	local_copy(src,dest);
-	return 0;
+	return EOK;
 }
 
 // recursive mkdir
@@ -80,7 +80,7 @@ int copy(const char *src, const char *dest)
 int _mkdir(char *path)
 {
 	if(!path)
-		return -1;
+		return EERR;
 
 
 	for(char *p = path +1; *p; p++)
@@ -90,5 +90,5 @@ int _mkdir(char *path)
 		mkdir(path,S_IRWXU);
 		*p = '/';
 	}
-	return 0;
+	return EOK;
 }

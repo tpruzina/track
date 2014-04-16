@@ -116,7 +116,7 @@ int parse_args(int argc, char **argv)
 	}
 	opts.next_arg = &(argv[++i]);
 
-	return 0;
+	return EOK;
 }
 
 void print_help()
@@ -190,7 +190,7 @@ void rm()
 int verify()
 {
 	// foreach file version(hash, md5) recalculate hash and compare
-	return  0;
+	return  EOK;
 }
 
 void show()
@@ -244,7 +244,7 @@ int export()
 //	char *dest = NULL;
 
 
-	return 0;
+	return EOK;
 }
 
 int main(int argc, char **argv)
@@ -269,5 +269,5 @@ int main(int argc, char **argv)
 	clean_up();
 	// only commit to database if everything went ok
 	db_commit();
-	return 0;
+	return EOK;
 }

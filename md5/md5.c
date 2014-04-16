@@ -24,7 +24,7 @@ int md5_calculate_hash_from_file(const char *filename, unsigned char hash[MD5_DI
 	unsigned char data[1024];
 
 	if (!inFile)
-        	return -1;
+        	return EERR;
 
 	MD5_Init(&mdContext);
 	while ((bytes = fread (data, 1, 1024, inFile)) != 0)
@@ -32,19 +32,19 @@ int md5_calculate_hash_from_file(const char *filename, unsigned char hash[MD5_DI
 	MD5_Final(hash,&mdContext);
 
 	fclose (inFile);
-	return 0;
+	return EOK;
 }
 
 int md5_calculate_hash_from_string(const char *string, unsigned char hash[MD5_DIGEST_LENGTH])
 {
 	if(!string)
-		return -1;
+		return EERR;
 	MD5_CTX mdContext;
 	MD5_Init(&mdContext);
 	MD5_Update(&mdContext, string, strlen(string));
 	MD5_Final(hash, &mdContext);
 
-	return 0;
+	return EOK;
 }
 
 char *md5_sanitized_hash_of_file (char *file_path)

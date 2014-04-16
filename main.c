@@ -28,29 +28,6 @@ void init_track()
 	return;
 }
 
-void init()
-{
-	PRINT(MESSAGE,"Initializing new database at %s\n", data_path);
-	
-	data_path = save_string_into_buffer(data_path);
-	if(!data_path)
-		exit(EXIT_FAILURE);
-
-	if(mkdir(data_path,0777) != 0)
-	{
-		if(errno != EEXIST)
-		{
-			// error handling
-			perror(NULL);
-			exit(EXIT_FAILURE);
-		}
-	}
-	else
-		PRINT(NOTICE,"Creating %s!\n",data_path);
-
-	init_track();
-}
-
 bool parse(char *s1, char *s2)
 {
 	return (strcmp(s1,s2) == 0) ? true : false;
@@ -182,8 +159,9 @@ void parse_env()
 #endif
 }
 
-void clean_up()
+void cleanup()
 {
+	free(data_path);
 	return;
 }
 
@@ -263,12 +241,30 @@ void snapshot()
 // if destination is null, replaces files with their respective backups
 int export()
 {
-	// these are to be parsed
-//	int mtime = -1;
-//	char *dest = NULL;
-
-
 	return EOK;
+}
+
+void init()
+{
+	PRINT(MESSAGE,"Initializing new database at %s\n", data_path);
+	
+	data_path = save_string_into_buffer(data_path);
+	if(!data_path)
+		exit(EXIT_FAILURE);
+
+	if(mkdir(data_path,0777) != 0)
+	{
+		if(errno != EEXIST)
+		{
+			// error handling
+			perror(NULL);
+			exit(EXIT_FAILURE);
+		}
+	}
+	else
+		PRINT(NOTICE,"Creating %s!\n",data_path);
+	atexit(cleanup);
+	init_track();
 }
 
 int main(int argc, char **argv)
@@ -292,9 +288,9 @@ int main(int argc, char **argv)
 		
 		default:
 			PRINT(MESSAGE, "please run \"track --help\" for usage.\n");
+		break;
 	}
 
-	clean_up();
 	// only commit to database if everything went ok
 	if(opts.op != TRACK_HELP)
 		db_commit();

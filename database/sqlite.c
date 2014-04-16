@@ -199,7 +199,8 @@ int db_add_file_record(char *hash, char *md5, long mtime)
 	sqlite3_bind_text(query,3,md5,-1,NULL);
 	
 	// todo: return code
-	if(sqlite3_step(query) != SQLITE_DONE)
+	int ret = sqlite3_step(query);
+	if(ret != SQLITE_DONE || ret != SQLITE_ROW)
 		return EERR;
 
 	if(query)
@@ -334,7 +335,7 @@ int db_file_get_newest_mtime(char *hash)
 	int ret=-1;
 	sqlite3_stmt *query;
 
-	sqlite3_prepare_v2(pDB, "select mtime from file_version where hash = ?1 order by mtime;", -1, &query, NULL);
+	sqlite3_prepare_v2(pDB, "select mtime from file_version where hash = ?1 order by mtime DESC;", -1, &query, NULL);
 	sqlite3_bind_text(query, 1, hash, -1, NULL);
 
 	if(sqlite3_step(query) == SQLITE_ROW)
@@ -350,7 +351,7 @@ char *db_file_get_newest_md5(char *hash)
 	sqlite3_stmt *query;
 	char *ret = NULL;
 
-	sqlite3_prepare_v2(pDB, "select md5 from file_version where hash = ?1 order by mtime;", -1, &query, NULL);
+	sqlite3_prepare_v2(pDB, "select md5 from file_version where hash = ?1 order by mtime DESC;", -1, &query, NULL);
 	sqlite3_bind_text(query, 1, hash, -1, NULL);
 
 	if(sqlite3_step(query) == SQLITE_ROW)

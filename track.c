@@ -64,7 +64,7 @@ int print_stats()
 /* 
  * Add file into database and make backup
  * if file is already in database, then check for changes and commit them
- * (if any)
+  (if any)
  */
 int track_file(const char *path)
 {
@@ -112,23 +112,21 @@ int track_file(const char *path)
 	{
 		PRINT(DEBUG, "found %s in database\n", abs_path);
 		//if((md5 = check_file_for_changes_md5(abs_path)) != NULL)
-		if(check_file_for_changes(abs_path, opts.md5_enforce) != 0)
+		if(check_file_for_changes(abs_path, opts.md5_enforce))
 		{
 			// file has changed - add new version to database!
 			PRINT(NOTICE,"updating %s\n",abs_path);
 
+			md5 = md5_sanitized_hash_of_file(abs_path);
 			snprintf(backup_path, sizeof(backup_path), "%s/%s/%s",data_path,hash,md5);
 
 			local_copy(abs_path, backup_path);
 			
-			md5 = md5_sanitized_hash_of_file(abs_path);
 			db_add_file_record(hash, md5, st.st_mtime);
 		}
 		else	// file is the same
-		{
-			PRINT(DEBUG,"%s hasn't changed\n",abs_path);
 			// e.g. do nothing
-		}
+			PRINT(DEBUG,"%s hasn't changed\n",abs_path);
 	}
 	else // file isn't tracked yet - track it!
 	{
@@ -192,6 +190,7 @@ cleanup:
 }
 
 // compares current file revision at abs_path with latest tracked file
+// returns 0 if file hasnt changed, -1 else
 // @enforce_md5, if true, compares by md5, if false, compares by mtime (cheap)
 int check_file_for_changes(char *abs_path, bool enforce_md5)
 {
@@ -200,15 +199,12 @@ int check_file_for_changes(char *abs_path, bool enforce_md5)
 	if(!hash)
 		ret = -1;
 
-//	int db_file_get_newest_mtime(char *hash);
-//	char *db_file_get_newest_md5(char *hash);
-
 	if(enforce_md5)
 	{
 		char *md5_old = db_file_get_newest_md5(hash);
 		char *md5_new = md5_sanitized_hash_of_file(abs_path);
 
-		if(!strcmp(md5_new,md5_old))
+		if(strcmp(md5_new,md5_old) == 0)
 			ret = 0;
 		else
 			ret = -1;

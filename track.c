@@ -115,7 +115,7 @@ int track_file(const char *path)
 		if(check_file_for_changes(abs_path, opts.md5_enforce) != 0)
 		{
 			// file has changed - add new version to database!
-			PRINT(DEBUG,"%s has changed\n",abs_path);
+			PRINT(NOTICE,"updating %s\n",abs_path);
 
 			snprintf(backup_path, sizeof(backup_path), "%s/%s/%s",data_path,hash,md5);
 
@@ -155,6 +155,7 @@ int track_file(const char *path)
 		// FILE_VERSION: <PK hash> <mtime> <md5>
 		db_add_file(abs_path, hash, md5, st.st_mtime);
 
+		PRINT(NOTICE,"%s added to database\n", path);
 
 	}
 	free(abs_path);

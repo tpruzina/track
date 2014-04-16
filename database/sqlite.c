@@ -45,7 +45,7 @@ int db_open(const char *path)
 	if (SQLITE_OK != (ret = sqlite3_open_v2(path, &pDB, SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE, NULL)))
         {
 		// handle open error
-		PRINT(ERROR,"Failed to open conn: %d\n", ret);
+		PRINT(ERROR,"Failed to open db: %s\n", path);
 		return ret;
         }
 	else
@@ -109,6 +109,54 @@ char *db_get_newest_md5(char *hash)
 	}
 	else
 		return NULL;
+}
+
+int db_get_newest_mtime(char *hash)
+{
+	if(!hash || !pDB)
+		exit(EXIT_FAILURE);
+
+	sqlite3_stmt *query_mtime;
+	sqlite3_prepare_v2(pDB,"select mtime from file_version where hash = $1 order by mtime DESC;",-1,&query_mtime,NULL);
+	sqlite3_bind_text(query_mtime,1,hash, -1,NULL);
+
+	int ret = sqlite3_step(query_mtime);
+	if(ret == SQLITE_ROW || ret == SQLITE_DONE)
+	{
+		int mtime = sqlite3_column_int(query_mtime,0);
+		sqlite3_finalize(query_mtime);
+		return mtime;
+	}
+	else
+		return -1; // this should return something else, since -1 is legit (though in 2030) 
+}
+
+
+int db_showchanged_files_mtime()
+{
+	if(!pDB)
+		exit(EXIT_FAILURE);
+
+	sqlite3_stmt *query_files;
+
+	sqlite3_prepare_v2(pDB, "select hash,path from file;",-1, &query_files, NULL);
+
+	while(sqlite3_step(query_files) == SQLITE_ROW)
+	{
+		char *hash = (char *)sqlite3_column_text(query_files,0);
+		char *path = (char *)sqlite3_column_text(query_files,1);
+
+		int curr = file_get_mtime(path);
+		int newest_in_db = db_get_newest_mtime(hash);
+
+		if(curr != newest_in_db)
+			PRINT(NOTICE,"changed:%s\t mtime_new=%d\t mtime_db: %d\n",path, curr, newest_in_db);
+	}
+
+	if(query_files)
+		sqlite3_finalize(query_files);
+
+	return EOK;
 }
 
 int db_showchanged_files_md5()

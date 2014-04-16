@@ -18,7 +18,7 @@ char db_path[1024];
 
 int log_level;
 
-struct options opts = { TRACK_HELP, false, NULL };
+struct options opts = { TRACK_NULL, false, NULL };
 
 // random string generator
 char *generate_random_string(ssize_t length)
@@ -43,6 +43,17 @@ char *generate_random_string(ssize_t length)
 	close(urandom_fd);
 
 	return result;
+}
+
+
+char *save_string_into_buffer(const char *str)
+{
+	char *ret;
+	if(!str || !(ret = malloc(strlen(str) +1)))
+		return NULL;
+	
+	strcpy(ret,str);
+	return ret;
 }
 
 void print_time(time_t time)

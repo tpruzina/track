@@ -1,28 +1,42 @@
 #include "common.h"
 
-void init()
+void init_track()
 {
-#ifdef _DEBUG
-	log_level = DEBUG;
-#else
-	log_level = NOTICE;
-#endif
 
 	if(!data_path)
-	{
-		data_path = malloc(1024);
-		// prepare ~/.track directory if it doesnt exist already
-		//char *home = getenv ("HOME");
-		//if (home != NULL)
-		//	snprintf(data_path, 1024, "%s/.track", home);
-		snprintf(data_path,1024,"./.track");
-	}
+		data_path = "./.track";
 	else
 		data_path = realpath(data_path, NULL);
-
+	
+	// we are going to initialize data folder, call init() from main
+	if(opts.op == TRACK_INIT)
+		return;
+	
+	if(!data_path)
+	{
+		PRINT(ERROR,"database not initialized!\n");
+		exit(EXIT_FAILURE);
+	}
 	PRINT(DEBUG,"TRACK_DATA_PATH = %s\n", data_path);
+	
+	// open database
+	snprintf(db_path, sizeof(db_path), "%s/db.sql", data_path);
+	PRINT(DEBUG,"DB_PATH = %s\n",db_path);
+	
+	if(db_open(db_path) != 0)
+		exit(EXIT_FAILURE);
+	return;
+}
 
-	if(mkdir(data_path, 0777) != 0)
+void init()
+{
+	PRINT(MESSAGE,"Initializing new database at %s\n", data_path);
+	
+	data_path = save_string_into_buffer(data_path);
+	if(!data_path)
+		exit(EXIT_FAILURE);
+
+	if(mkdir(data_path,0777) != 0)
 	{
 		if(errno != EEXIST)
 		{
@@ -34,14 +48,7 @@ void init()
 	else
 		PRINT(NOTICE,"Creating %s!\n",data_path);
 
-	// open database (create new one if needed)
-	snprintf(db_path, sizeof(db_path), "%s/db.sql", data_path);
-	PRINT(DEBUG,"DB_PATH = %s\n",db_path);
-	
-	if(db_open(db_path) != 0)
-		exit(EXIT_FAILURE);
-	
-	return;
+	init_track();
 }
 
 bool parse(char *s1, char *s2)
@@ -56,8 +63,10 @@ int parse_args(int argc, char **argv)
 	{
 		if(parse("--md5",argv[i]))
 			opts.md5_enforce=true;
-		else if(parse("-v",argv[i]))
+		else if(parse("-vv",argv[i]))
 			log_level = DEBUG;
+		else if(parse("-v",argv[i]))
+			log_level= NOTICE;
 		else if(parse("-q",argv[i]))
 			log_level = ERROR;
 		else if(parse("--data-path",argv[i]))
@@ -113,6 +122,12 @@ int parse_args(int argc, char **argv)
 			opts.op=TRACK_HELP;
 			break;
 		}
+		else if(parse("--init",argv[i]) ||
+			parse("init",argv[i]))
+		{
+			opts.op=TRACK_INIT;
+			break;
+		}
 	}
 	opts.next_arg = &(argv[++i]);
 
@@ -159,11 +174,17 @@ void parse_env()
 {
 	enforce_md5 = getenv("TRACK_FORCE_MD5");
 	data_path = getenv("TRACK_DATA_PATH");
+
+#ifdef _DEBUG
+	log_level = DEBUG;
+#else
+	log_level = MESSAGE;
+#endif
 }
 
 void clean_up()
 {
-	free(data_path);
+	return;
 }
 
 void add(void)
@@ -196,34 +217,37 @@ int verify()
 void show()
 {
 	if(!(*opts.next_arg))
-		db_showchanged_files_md5();
+		PRINT(NOTICE,"please supply a parameter (file(s))\n");	
 	else
 	{
 		char *tmp;
-		while(*opts.next_arg)
+		do
 		{
 			char *abs_path=realpath(*opts.next_arg,NULL);
 			if(!abs_path)
-				PRINT(NOTICE,"%s unrecognized.\n",*opts.next_arg);
+				PRINT(MESSAGE,"%s not found.\n",*opts.next_arg);
 			else
 			{
 				tmp = md5_sanitized_hash_of_string(abs_path);
-				PRINT(NOTICE,"%s:\n",abs_path);
+				PRINT(MESSAGE,"%s:\n",abs_path);
 				if(db_query_file(abs_path) != -1)
 					db_list_file_versions(tmp);
 				else
-					PRINT(NOTICE,"NOT TRACKED.\n");
+					PRINT(MESSAGE,"NOT TRACKED.\n");
 				free(tmp);
 			}
-			putchar('\n');
 			opts.next_arg++;
 		}
+		while(*opts.next_arg && putchar('\n'));
 	}
 }
 
 void diff()
 {
-	db_showchanged_files_md5();
+	if(opts.md5_enforce)
+		db_showchanged_files_md5();
+	else
+		db_showchanged_files_mtime();
 }
 
 void snapshot()
@@ -251,7 +275,9 @@ int main(int argc, char **argv)
 {
 	parse_env();
 	parse_args(argc,argv);
-	init();
+	
+	if(opts.op != TRACK_HELP)
+		init_track();
 
 	switch(opts.op)
 	{
@@ -261,13 +287,17 @@ int main(int argc, char **argv)
 		case TRACK_VERIFY:	verify();		break;
 		case TRACK_SHOW:	show();			break;
 		case TRACK_DIFF:	diff();			break;
-
-		default:
+		case TRACK_INIT:	init();			break;
 		case TRACK_HELP:	print_help();		break;
+		
+		default:
+			PRINT(MESSAGE, "please run \"track --help\" for usage.\n");
 	}
 
 	clean_up();
 	// only commit to database if everything went ok
-	db_commit();
+	if(opts.op != TRACK_HELP)
+		db_commit();
+	
 	return EOK;
 }

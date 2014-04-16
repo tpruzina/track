@@ -33,4 +33,6 @@ int local_copy(const char *src, const char *dest);
 int copy(const char *src, const char *dest);
 int _mkdir(char *path);
 
+int file_get_mtime(char *path);
+
 #endif /* __FILE_H__ */

@@ -75,6 +75,13 @@ int copy(const char *src, const char *dest)
 	return EOK;
 }
 
+int file_get_mtime(char *path)
+{
+	struct stat st;
+	stat(path, &st);
+	return st.st_mtime;
+}
+
 // recursive mkdir
 // path _must_ be writeable
 int _mkdir(char *path)

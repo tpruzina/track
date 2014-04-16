@@ -69,6 +69,7 @@ extern int log_level;
 
 enum actions
 {
+	TRACK_NULL,
 	TRACK_HELP,
 	TRACK_ADD,
 	TRACK_EXPORT,
@@ -76,11 +77,14 @@ enum actions
 	TRACK_SHOW,
 	TRACK_RM,
 	TRACK_SNAPSHOT,
-	TRACK_VERIFY
+	TRACK_VERIFY,
+	TRACK_INIT
 };
 
 char *generate_random_string(ssize_t length);
 
 void print_time(time_t time);
+
+char *save_string_into_buffer(const char *str);
 
 #endif /* __COMMON_H__ */

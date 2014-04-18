@@ -519,3 +519,21 @@ int db_export_snapshot(int snapshot_id, char *dest_path)
 	return ret;
 }
 
+
+int db_remove_file_fv(int id)
+{
+	sqlite3_stmt *delete_query;
+	int ret=0;
+
+	sqlite3_prepare_v2(pDB,"DELETE FROM file_version fv WHERE id = ?1",
+	                   -1,&delete_query,NULL);
+	sqlite3_bind_int(delete_query,1,id);
+
+	ret = sqlite3_step(delete_query);
+	sqlite3_finalize(delete_query);
+	
+	if(ret == SQLITE_ROW || ret == SQLITE_DONE)
+		return 0;
+	else
+		return -1;
+}

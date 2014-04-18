@@ -184,6 +184,9 @@ int remove_file(const char *path)
 	// if file is tracked, attempt to remove each version of the file
 	// from both backup folder and database
 
+	char *hash = md5_sanitized_hash_of_string(realpath(path,NULL));
+
+	
 cleanup:
 	free(abs_path);
 	return EOK;

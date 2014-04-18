@@ -1,6 +1,6 @@
 NAME: track <br>
 DESCRIPTION: Open-source tracking&backup software  <br>
-STATUS: alpha staget <br>
+STATUS: devel <br>
 VERSION: 0.1 <br>
 PORTABILITY: POSIX compliant system (with required dependencies) <br>
 DEPENDENCIES: openssl, sqlite3,linux2.6+ <br>

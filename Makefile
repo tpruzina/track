@@ -16,5 +16,8 @@ debug: $(SOURCES)
 clang-analysis:
 	env scan-build --use-analyzer=/usr/bin/clang++ make
 
+cppcheck-analysis:
+	 env find . -name '*.c' -exec env cppcheck --std=c99 --language=c '{}' \;
+
 clean:
 	rm -f track

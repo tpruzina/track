@@ -265,6 +265,9 @@ int db_create_snapshot(long t)
 		sqlite3_step(add_fv_id_into_snapshot_query);
 		sqlite3_finalize(add_fv_id_into_snapshot_query);
 	}
+	
+	if(SQLITE_DONE != ret)
+		return EERR;
 
 	if(file_query)
 		sqlite3_finalize(file_query);
@@ -423,7 +426,7 @@ int db_check_file_tracking(const char *abs_path, const char *hash)
 
 	int sql_ret = sqlite3_step(query);
 
-	if(sql_ret != SQLITE_ROW || sql_ret != SQLITE_ROW)
+	if(sql_ret != SQLITE_ROW)
 		ret = -1;
 	else
 		ret = 0;

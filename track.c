@@ -277,7 +277,7 @@ int export_snapshot(int snapshot_id, char *dest_path)
 
 	// make sure that destination path exists (or create it)
 	// due to hackish nature of _mkdir, writeable path is required - make one
-	char *writeable_dest_path = malloc(strlen(dest_path));
+	char *writeable_dest_path = malloc(strlen(dest_path)+1);
 	strcpy(writeable_dest_path,dest_path);
 
 	_mkdir(writeable_dest_path);

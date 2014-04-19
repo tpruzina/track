@@ -175,7 +175,7 @@ int remove_file(const char *path)
 
 	// if file isn't tracked.. nothing to do
 	if(db_query_file(abs_path) == -1)
-		goto cleanup;
+		goto cleanup_path;
 
 
 	db_set_file_tracking(abs_path,NULL,false);
@@ -187,7 +187,10 @@ int remove_file(const char *path)
 	char *hash = md5_sanitized_hash_of_string(realpath(path,NULL));
 
 	
-cleanup:
+
+cleanup_hash:
+	free(hash);
+cleanup_path:
 	free(abs_path);
 	return EOK;
 }

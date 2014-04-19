@@ -98,11 +98,13 @@ char *db_get_newest_md5(char *hash)
 	sqlite3_prepare_v2(pDB,"select md5 from file_version where hash = $1 order by mtime DESC;",-1,&query_md5,NULL);
 	sqlite3_bind_text(query_md5,1,hash, -1,NULL);
 
-	char*string = malloc(MD5_DIGEST_LENGTH*2+1);
-
 	int ret = sqlite3_step(query_md5);
 	if(ret == SQLITE_ROW || ret == SQLITE_DONE)
 	{
+		char*string = malloc(MD5_DIGEST_LENGTH*2+1);
+		if(!string)
+			exit(EXIT_FAILURE);
+
 		strcpy(string,(char*)sqlite3_column_text(query_md5,0));
 		sqlite3_finalize(query_md5);
 		return string;

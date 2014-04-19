@@ -13,5 +13,8 @@ main: $(SOURCES)
 debug: $(SOURCES)
 	$(CC) $(DEBUGFLAGS) $(LDFLAGS) $(SOURCES) -o track
 
+clang-analysis:
+	env scan-build --use-analyzer=/usr/bin/clang++ make
+
 clean:
 	rm -f track

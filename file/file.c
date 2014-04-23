@@ -99,3 +99,13 @@ int _mkdir(char *path)
 	}
 	return EOK;
 }
+
+void do_in_dir(char *dirpath, int (*f)(const char *))
+{
+	PRINT(NOTICE,
+	      f == track_file ? "adding directory %s": "",
+	      dirpath);
+	char *file = NULL;
+
+	f(file);
+}

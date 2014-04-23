@@ -78,7 +78,8 @@ enum actions
 	TRACK_RM,
 	TRACK_SNAPSHOT,
 	TRACK_VERIFY,
-	TRACK_INIT
+	TRACK_INIT,
+	TRACK_GC
 };
 
 char *generate_random_string(ssize_t length);

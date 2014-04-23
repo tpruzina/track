@@ -56,11 +56,6 @@ int list_file_versions(char *path)
 	return ret;
 }
 
-int print_stats()
-{
-	return EOK;
-}
-
 /* 
  * Add file into database and make backup
  * if file is already in database, then check for changes and commit them
@@ -178,7 +173,6 @@ int remove_file(const char *path)
 		goto cleanup_path;
 
 
-	db_set_file_tracking(abs_path,NULL,false);
 
 	//TODO: physically remove files
 	// if file is tracked, attempt to remove each version of the file
@@ -186,9 +180,23 @@ int remove_file(const char *path)
 
 	char *hash = md5_sanitized_hash_of_string(realpath(path,NULL));
 
-	
+	// don't remove files that are tracked by a snapshot
+	if(db_query_file_in_snapshot(hash))
+	{
+		PRINT(MESSAGE,
+		              "File %s currently tracked by a snapshot, marking untracked instead of removing.\n",
+		              path);
+		db_set_file_tracking(abs_path,NULL,false);
+	}
+	else
+	{
+		// first remove all the db:fileversion of file
 
-cleanup_hash:
+		// remove row from db:file
+		db_remove_file(hash);
+	}
+
+//cleanup_hash:
 	free(hash);
 cleanup_path:
 	free(abs_path);
@@ -203,7 +211,7 @@ int check_file_for_changes(char *abs_path, bool enforce_md5)
 	int ret;
 	char *hash = md5_sanitized_hash_of_string(abs_path);
 	if(!hash)
-		ret = -1;
+		exit(EXIT_FAILURE);
 
 	if(enforce_md5)
 	{
@@ -272,7 +280,7 @@ cleanup:
 
 int export_snapshot(int snapshot_id, char *dest_path)
 {
-	int ret = -1;
+	int ret;
 	// verify snapshot exist
 
 	// make sure that destination path exists (or create it)

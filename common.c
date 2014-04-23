@@ -45,7 +45,6 @@ char *generate_random_string(ssize_t length)
 	return result;
 }
 
-
 char *save_string_into_buffer(const char *str)
 {
 	char *ret;

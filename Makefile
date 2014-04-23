@@ -1,4 +1,4 @@
-LDFLAGS=-lssl -lcrypto -lsqlite3
+LDFLAGS=-lcrypto -lsqlite3
 CFLAGS=-O2 -D_GNU_SOURCE -std=gnu99 
 DEBUGFLAGS=-std=gnu99 -Og -D_GNU_SOURCE -D_DEBUG -Wall -Wextra -g3 -ggdb3
 
@@ -13,11 +13,14 @@ main: $(SOURCES)
 debug: $(SOURCES)
 	$(CC) $(DEBUGFLAGS) $(LDFLAGS) $(SOURCES) -o track
 
+test: tests
+tests: clang-analysis cppcheck-analysis
+
 clang-analysis:
-	env scan-build --use-analyzer=/usr/bin/clang++ make
+	env scan-build --use-analyzer=/usr/bin/clang++ make -j3
 
 cppcheck-analysis:
-	 env find . -name '*.c' -exec env cppcheck --std=c99 --language=c '{}' \;
+	 env cppcheck --enable=all --std=c99 --language=c $(SOURCES)
 
 clean:
 	rm -f track

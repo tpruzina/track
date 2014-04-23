@@ -524,6 +524,53 @@ int db_export_snapshot(int snapshot_id, char *dest_path)
 	return ret;
 }
 
+bool db_query_file_in_snapshot(char *hash)
+{
+	if(!hash)
+		return false;
+
+	int ret;
+
+	sqlite3_stmt *query;
+	sqlite3_prepare_v2(pDB,"				\
+			SELECT fv.id FROM file_version fv	\
+	                INNER JOIN				\
+			(					\
+				SELECT fv_id FROM snapshot_file	\
+			) fvs					\
+			ON fvs.fv_id = fv.id AND fv.hash = ?1",
+			-1, &query, NULL
+	);
+	sqlite3_bind_text(query, 1,hash,-1,NULL);
+
+	ret = sqlite3_step(query);
+	sqlite3_finalize(query);
+
+	if (ret == SQLITE_ROW)
+		return true;
+	else
+		return false;
+}
+
+// remove row from db:file
+int db_remove_file(char *hash)
+{
+	sqlite3_stmt *delete_query;
+	int ret=0;
+
+	sqlite3_prepare_v2(pDB, "DELETE FROM file WHERE hash = ?1;",
+	                   -1, &delete_query, NULL);
+	sqlite3_bind_text(delete_query,1,hash,-1,NULL);
+
+	ret = sqlite3_step(delete_query);
+	sqlite3_finalize(delete_query);
+
+	if(ret == SQLITE_DONE || ret == SQLITE_ROW)
+		return 0;
+	else
+		return -1;
+
+}
 
 int db_remove_file_fv(int id)
 {

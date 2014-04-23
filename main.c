@@ -1,13 +1,17 @@
 #include "common.h"
 
+void cleanup();
+
 void init_track()
 {
 
 	if(!data_path)
 		data_path = "./.track";
 	else
+	{
 		data_path = realpath(data_path, NULL);
-	
+		atexit(cleanup);
+	}
 	// we are going to initialize data folder, call init() from main
 	if(opts.op == TRACK_INIT)
 		return;
@@ -167,9 +171,15 @@ void cleanup()
 
 void add(void)
 {
+	struct stat st;
 	while(*opts.next_arg)
 	{
 		PRINT(DEBUG,"adding/updating: %s\n",*opts.next_arg);
+
+		// add directory
+		stat(*opts.next_arg,&st);
+		if(S_ISDIR(st.st_mode))
+			do_in_dir(*opts.next_arg,track_file);
 		track_file(*opts.next_arg);
 		opts.next_arg++;
 	}
@@ -213,6 +223,7 @@ void show()
 				else
 					PRINT(MESSAGE,"NOT TRACKED.\n");
 				free(tmp);
+				free(abs_path);
 			}
 			opts.next_arg++;
 		}
@@ -240,6 +251,11 @@ void snapshot()
 // if mtime is null, exports most current backup into destination
 // if destination is null, replaces files with their respective backups
 int export()
+{
+	return EOK;
+}
+
+int gc()
 {
 	return EOK;
 }
@@ -285,6 +301,7 @@ int main(int argc, char **argv)
 		case TRACK_DIFF:	diff();			break;
 		case TRACK_INIT:	init();			break;
 		case TRACK_HELP:	print_help();		break;
+		case TRACK_GC:		gc();			break;
 		
 		default:
 			PRINT(MESSAGE, "please run \"track --help\" for usage.\n");

@@ -35,4 +35,6 @@ int _mkdir(char *path);
 
 int file_get_mtime(char *path);
 
+void do_in_dir(char *dirpath, int (*f)(const char *));
+
 #endif /* __FILE_H__ */

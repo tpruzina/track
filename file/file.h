@@ -1,5 +1,4 @@
 /******************************************************************************
- * %FILE%  [:VIM_EVAL:]ls[:END_EVAL:]
  * Author: Tomas Pruzina <pruzinat@gmail.com>
  * 
  * Permission is hereby granted, free of charge, to any person
@@ -29,12 +28,20 @@
 
 #include "../common.h"
 
+// copy file by using mmap
 int local_copy(const char *src, const char *dest);
+
+// uses function above, but also creates directories as necessary
 int copy(const char *src, const char *dest);
+
+// recursive mkdir (much like 'mkdir -p')
 int _mkdir(char *path);
 
+// returns mtime of file given path (-1 on error)
 int file_get_mtime(char *path);
 
+// execute (*function) on every file in directory
+// for recursively adding files inside directories
 void do_in_dir(char *dirpath, int (*f)(const char *));
 
 #endif /* __FILE_H__ */

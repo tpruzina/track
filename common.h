@@ -60,32 +60,37 @@ struct options
 #define MESSAGE 2
 #define ERROR 3
 
-#define EOK 0
-#define EERR -1
-
+// global variable defining verbosity of printing functions
+// todo: move this into struct options???
 extern int log_level;
 #define PRINT(x, ...) do { if(log_level <= (x)) fprintf(stdout, __VA_ARGS__ ); } while ( 0 )
 
 
+// RETURN CODES (to prevent confusion wheather f(arg) == 0 means OK/ERROR)
+#define EOK 0
+#define EERR -1
+
+// main action enum
 enum actions
 {
-	TRACK_NULL,
-	TRACK_HELP,
-	TRACK_ADD,
-	TRACK_EXPORT,
-	TRACK_DIFF,
-	TRACK_SHOW,
-	TRACK_RM,
-	TRACK_SNAPSHOT,
-	TRACK_VERIFY,
-	TRACK_INIT,
-	TRACK_GC
+	TRACK_NULL, // do nothing -- default
+	TRACK_HELP, // print help
+	TRACK_ADD, // add file/directory
+	TRACK_EXPORT, // export backups from snapshot (or without argument, export most recent backups)
+	TRACK_DIFF, // print out files that changed since last commit to db
+	TRACK_SHOW, // print various info about object (file) -- not fully implemented just yet
+	TRACK_RM, // remove/stop tracking file (files covered by snapshots are not destroyed, nor are their records)
+	TRACK_SNAPSHOT, // create snapshot of all files that are currently tracked
+	TRACK_VERIFY, // verify integrity of backups and print potential problems (todo)
+	TRACK_INIT, // create new database and backup directory (./.track by default)
+	TRACK_GC // remove all backups that arent linked by snapshots and are NOT tracked
 };
 
 char *generate_random_string(ssize_t length);
-
 void print_time(time_t time);
 
+// takes copies content of str into dynamically allocated buffer and returns
+// pointer to it (this is required for environment variables that are RO)
 char *save_string_into_buffer(const char *str);
 
 #endif /* __COMMON_H__ */

@@ -2,6 +2,7 @@
 
 void cleanup();
 
+// initialize database and open it
 void init_track()
 {
 
@@ -32,11 +33,13 @@ void init_track()
 	return;
 }
 
+// helper function for agument parsing, returns true if "s1" == "s2"
 bool parse(char *s1, char *s2)
 {
 	return (strcmp(s1,s2) == 0) ? true : false;
 }
 
+// parse program arguments
 int parse_args(int argc, char **argv)
 {
 	int i=1;
@@ -151,11 +154,14 @@ void print_help()
 	);
 }
 
+// parses environment variables
 void parse_env()
 {
 	enforce_md5 = getenv("TRACK_FORCE_MD5");
 	data_path = getenv("TRACK_DATA_PATH");
 
+	// todo: this should be initialized from elsewhere 
+	// (before arg parsing override)
 #ifdef _DEBUG
 	log_level = DEBUG;
 #else
@@ -163,12 +169,14 @@ void parse_env()
 #endif
 }
 
+// frees data_path buffer on exit (called via atexit - when required)
 void cleanup()
 {
 	free(data_path);
 	return;
 }
 
+// adds new file/dir into database and start tracking it
 void add(void)
 {
 	struct stat st;
@@ -185,6 +193,7 @@ void add(void)
 	}
 }
 
+// removes / untracks file/dir from database (still not fully implemented)
 void rm()
 {
 	while(*opts.next_arg)
@@ -202,6 +211,7 @@ int verify()
 	return  EOK;
 }
 
+// prints out tracked file revisions
 void show()
 {
 	if(!(*opts.next_arg))
@@ -231,6 +241,7 @@ void show()
 	}
 }
 
+// prints all changed files
 void diff()
 {
 	if(opts.md5_enforce)
@@ -239,6 +250,7 @@ void diff()
 		db_showchanged_files_mtime();
 }
 
+// creates new snapshot of all tracked files
 void snapshot()
 {
 	if(!(*opts.next_arg))
@@ -260,6 +272,7 @@ int gc()
 	return EOK;
 }
 
+// initialize new data directory (and calls init_track)
 void init()
 {
 	PRINT(MESSAGE,"Initializing new database at %s\n", data_path);

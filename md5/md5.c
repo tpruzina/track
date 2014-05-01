@@ -15,7 +15,7 @@
 
 #include "md5.h"
 
-
+// fills hash buffer with raw md5 (given path to file)
 int md5_calculate_hash_from_file(const char *filename, unsigned char hash[MD5_DIGEST_LENGTH])
 {
 	FILE *inFile = fopen (filename, "rb");
@@ -35,6 +35,7 @@ int md5_calculate_hash_from_file(const char *filename, unsigned char hash[MD5_DI
 	return EOK;
 }
 
+// fills hash buffer with raw md5 (given string)
 int md5_calculate_hash_from_string(const char *string, unsigned char hash[MD5_DIGEST_LENGTH])
 {
 	if(!string)
@@ -47,6 +48,7 @@ int md5_calculate_hash_from_string(const char *string, unsigned char hash[MD5_DI
 	return EOK;
 }
 
+// sanitizes md5 (byte array -> alphanum ascii)
 char *md5_sanitized_hash_of_file (char *file_path)
 {
 	unsigned char buffer[MD5_DIGEST_LENGTH]= {0};
@@ -62,6 +64,7 @@ char *md5_sanitized_hash_of_file (char *file_path)
 	
 }
 
+// sanitizes md5 (byte array -> alphanum ascii)
 char *md5_sanitized_hash_of_string(char *string)
 {
 	unsigned char buffer[MD5_DIGEST_LENGTH] = {0};

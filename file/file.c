@@ -75,6 +75,7 @@ int copy(const char *src, const char *dest)
 	return EOK;
 }
 
+// given path, return mtime
 int file_get_mtime(char *path)
 {
 	struct stat st;
@@ -100,6 +101,8 @@ int _mkdir(char *path)
 	return EOK;
 }
 
+// used for adding/removing files recursively in directory
+// TODO: not implemented!!
 void do_in_dir(char *dirpath, int (*f)(const char *))
 {
 	PRINT(NOTICE,

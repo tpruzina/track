@@ -19,17 +19,21 @@
 
 sqlite3 *pDB = NULL;
 
+// close database and connection (called before exit)
+// does not commit changes if something goes wrong
 void db_close(void)
 {
 	sqlite3_close(pDB);
 	sqlite3_shutdown();
 }
 
+// commit database - if no error occured
 void db_commit(void)
 {
 	sqlite3_exec(pDB,"COMMIT",0,0,0);
 }
 
+// open database file and create tables if needed
 int db_open(const char *path)
 {
 	int ret;
@@ -65,6 +69,7 @@ int db_open(const char *path)
 	return EOK;
 }
 
+// given hash, lists all tracked revisions of file and prints them on stdout
 int db_list_file_versions(char *hash)
 {
 	if(!pDB)
@@ -89,6 +94,8 @@ int db_list_file_versions(char *hash)
 	return count;
 }
 
+// returns md5 hash of most recent file revision
+// it's calees responsibility to free resulting buffer
 char *db_get_newest_md5(char *hash)
 {
 	if(!hash || !pDB)
@@ -113,6 +120,7 @@ char *db_get_newest_md5(char *hash)
 		return NULL;
 }
 
+// returns mtime of most recent file revision (see db_get_newest_md5)
 int db_get_newest_mtime(char *hash)
 {
 	if(!hash || !pDB)
@@ -133,7 +141,8 @@ int db_get_newest_mtime(char *hash)
 		return -1; // this should return something else, since -1 is legit (though in 2030) 
 }
 
-
+// yet another simple printing functon, prints every file that has mtime newer
+// than what is in database
 int db_showchanged_files_mtime()
 {
 	if(!pDB)
@@ -161,6 +170,7 @@ int db_showchanged_files_mtime()
 	return EOK;
 }
 
+// prints every file with md5 newer than what's stored in database (this is not cheap)
 int db_showchanged_files_md5()
 {
 	if(!pDB)
@@ -188,6 +198,7 @@ int db_showchanged_files_md5()
 	return EOK;
 }
 
+// adds new file revision into file_version table (it needs to be tracked)
 int db_add_file_record(char *hash, char *md5, long mtime)
 {
 	if(!pDB)
@@ -211,6 +222,8 @@ int db_add_file_record(char *hash, char *md5, long mtime)
 	return EOK;
 }
 
+// creates new snapshot
+// desc can be set, if its NULL, then current time is used
 int db_create_snapshot_record(long t,char *desc)
 {
 	if(!pDB)
@@ -275,6 +288,8 @@ int db_create_snapshot(long t)
 	return EOK;
 }
 
+// adds new file into database (both into table 'file' and 'file_version')
+// this is used for adding new files
 int db_add_file(char *path, char *sanitized_hash, char *md5, long mtime)
 {
 	if(!pDB)
@@ -317,7 +332,7 @@ int db_add_file(char *path, char *sanitized_hash, char *md5, long mtime)
 	return EOK;
 }
 
-// checks wheather file is tracked
+// checks wheather file hash record in 'file' table
 int db_query_file(const char *abs_path)
 {
 	sqlite3_stmt *query;
@@ -335,6 +350,7 @@ int db_query_file(const char *abs_path)
 		return EERR;
 }
 
+// TODO: duplicite function????
 int db_file_get_newest_mtime(char *hash)
 {
 	int ret=-1;
@@ -351,6 +367,7 @@ int db_file_get_newest_mtime(char *hash)
 	return ret;
 }
 
+// TODO: duplicite function????
 char *db_file_get_newest_md5(char *hash)
 {
 	sqlite3_stmt *query;
@@ -404,6 +421,7 @@ int db_set_file_tracking(const char *abs_path, const char *hash, bool value)
 	return ret;
 }
 
+// query tracking status of a file (search by either hash or absolute_path)
 int db_check_file_tracking(const char *abs_path, const char *hash)
 {
 	int ret;
@@ -437,6 +455,9 @@ int db_check_file_tracking(const char *abs_path, const char *hash)
 	return ret;
 }
 
+// given file_version.id (revision), returns file path 
+// used in exporting backups from snapshots
+// returns dynamically allocated string on success, NULL on failure
 char *db_query_path_from_fv_id(int id)
 {
 	sqlite3_stmt *query;
@@ -472,6 +493,9 @@ char *db_query_path_from_fv_id(int id)
 	return ret;
 }
 
+// given file_version.id, returns string containing path to actuall
+// backup of file (from .track directory)
+// returns dynamically allocated string on success, NULL on failure
 char *db_query_backup_path_from_fv_id(int id)
 {
 	sqlite3_stmt *query;
@@ -524,6 +548,10 @@ int db_export_snapshot(int snapshot_id, char *dest_path)
 	return ret;
 }
 
+// returns true if file exists in one or more snapshots
+// false otherwise
+// this is beneficial when we want to remove backups when cleaining up
+// TODO: write par function querying doing the same for file_version rev.
 bool db_query_file_in_snapshot(char *hash)
 {
 	if(!hash)
@@ -572,6 +600,7 @@ int db_remove_file(char *hash)
 
 }
 
+// removes a record from file_version
 int db_remove_file_fv(int id)
 {
 	sqlite3_stmt *delete_query;

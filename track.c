@@ -29,7 +29,6 @@ int restore_snapshot(int id)
 	return EOK;
 }
 
-
 int create_snapshot(char *desc)
 {
 	//todo: error handling
@@ -178,7 +177,7 @@ int remove_file(const char *path)
 	// if file is tracked, attempt to remove each version of the file
 	// from both backup folder and database
 
-	char *hash = md5_sanitized_hash_of_string(realpath(path,NULL));
+	char *hash = md5_sanitized_hash_of_string(abs_path);
 
 	// don't remove files that are tracked by a snapshot
 	if(db_query_file_in_snapshot(hash))
@@ -297,4 +296,3 @@ int export_snapshot(int snapshot_id, char *dest_path)
 	free(writeable_dest_path);
 	return ret;
 }
-
